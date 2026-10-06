@@ -22,6 +22,9 @@
 -- which this minimal dataset doesn't include.
 -- ============================================================
 
+-- Kõik andmed lisatakse testi_platvorm skeemi
+SET search_path TO testi_platvorm;
+
 BEGIN;
 
 -- ------------------------------------------------------------

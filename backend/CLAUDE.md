@@ -32,11 +32,13 @@ PostgreSQL peab töötama `localhost`-is järgmiste seadetega:
 - Mugav DB url: `jdbc:postgresql://localhost:5432/vali_it`
 
 Käivita skriptid järjekorras kaustast `docs/database`:
-1. `1_reset_database.sql` — kustutab ja loob uuesti `minu_projekt` skeema
+1. `1_reset_database.sql` — kustutab ja loob uuesti `testi_platvorm` skeema
 2. `2_create.sql` — loob kõik tabelid
 3. `3_import.sql` — lisab algandmed
 
-Kõik tabelid asuvad `minu_projekt` skeemas.
+Kõik tabelid asuvad `testi_platvorm` skeemas: `2_create.sql` ja `3_import.sql` seavad `search_path`-i sellele skeemile, entity-d kasutavad `@Table(schema = "testi_platvorm")` ja datasource URL-is on `?currentSchema=testi_platvorm` (vajalik nt `NlToSqlService` toores SQL-i jaoks).
+
+**Dockeriga:** repo juurkaustas on `docker-compose.yml`, mis loob ülaltoodud seadetega PostgreSQL-i ja käivitab `docs/database` skriptid esimesel käivitusel automaatselt. Käivita repo juurest `docker compose up -d`; andmebaasi nullist loomiseks `docker compose down -v && docker compose up -d`.
 
 ## Arhitektuur
 

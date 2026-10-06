@@ -1,0 +1,33 @@
+# Lokaalne PostgreSQL andmebaas backendi arendamiseks.
+#
+# Käivitamine:        docker compose up -d
+# Peatamine:          docker compose down
+# Andmebaas nullist:  docker compose down -v && docker compose up -d
+#
+# Esimesel käivitusel (kui andmete volume on tühi) käivitab Postgres automaatselt
+# docs/database/ kausta skriptid tähestikulises järjekorras (1_, 2_, 3_).
+# Hilisematel käivitustel neid enam ei käivitata — skeemi muutmiseks kasuta
+# ülaltoodud "andmebaas nullist" käsku.
+
+services:
+  postgres:
+    image: postgres:17
+    container_name: testi-platvorm-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: vali_it
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: student123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./docs/database:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d vali_it"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres-data:

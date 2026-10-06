@@ -1,6 +1,9 @@
 -- Created by Redgate Data Modeler (https://datamodeler.redgate-platform.com)
 -- Last modification date: 2026-09-21 12:42:39.07
 
+-- Kõik tabelid luuakse testi_platvorm skeemi
+SET search_path TO testi_platvorm;
+
 -- tables
 -- Table: ai_question
 
