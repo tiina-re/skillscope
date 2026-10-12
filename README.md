@@ -1,6 +1,19 @@
-# testi-platvorm
+Testide loomise ja läbimise platvorm: Spring Boot backend + Vue 3 frontend.
 
-Vali-IT grupiprojekti toorik: Spring Boot backend + Vue 3 frontend.
+## Projekti taust
+
+Projekt sai alguse Vali-IT kursuse ühisprojektina, mille tegime tiimiga koos
+([magicflute21/testi-platvorm](https://github.com/magicflute21/testi-platvorm)).
+See repo on minu isiklik jätk, kus arendan projekti edasi.
+
+### Minu panus tiimiprojektis
+- Testi loomise vaade ja teenus (`TestService.createTest`)
+- Töölaud
+- Küsimuste pank (`QuestionService`)
+- Küsimuste genereerimise AI chat.
+
+### Pärast tiimiprojekti lisatud
+- Unit testid (JUnit 5 + Mockito + AssertJ) teenustele `QuestionService` ja `TestService`
 
 ## Struktuur
 
