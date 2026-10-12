@@ -4,6 +4,7 @@ import ee.testiplatvorm.controller.aiquestion.dto.AiQuestionBankAnswerDto;
 import ee.testiplatvorm.controller.aiquestion.dto.AiQuestionBankDto;
 import ee.testiplatvorm.controller.aiquestion.dto.AiQuestionReviewRequestDto;
 import ee.testiplatvorm.infrastructure.exception.BadRequestException;
+import ee.testiplatvorm.infrastructure.exception.ForbiddenException;
 import ee.testiplatvorm.infrastructure.exception.PrimaryKeyNotFoundException;
 import ee.testiplatvorm.persistence.aiquestion.AiQuestion;
 import ee.testiplatvorm.persistence.aiquestion.AiQuestionMapper;
@@ -17,6 +18,7 @@ import ee.testiplatvorm.persistence.questionanswer.QuestionAnswer;
 import ee.testiplatvorm.persistence.questionanswer.QuestionAnswerRepository;
 import ee.testiplatvorm.persistence.questiontype.QuestionType;
 import ee.testiplatvorm.persistence.questiontype.QuestionTypeRepository;
+import ee.testiplatvorm.persistence.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static ee.testiplatvorm.Error.AI_QUESTION_ALREADY_REVIEWED;
+import static ee.testiplatvorm.Error.NO_PERMISSION_TO_MANAGE_QUESTIONS;
 import static ee.testiplatvorm.Status.STATUS_ACTIVE;
 import static ee.testiplatvorm.Status.STATUS_PENDING;
 import static ee.testiplatvorm.Status.STATUS_REJECTED;
@@ -51,8 +54,10 @@ public class AiQuestionBankService {
     private final QuestionRepository questionRepository;
     private final QuestionAnswerRepository questionAnswerRepository;
     private final UserService userService;
+    private final CurrentUserService currentUserService;
 
     public List<AiQuestionBankDto> findAllAiQuestionsBy(String status, Integer competenceId) {
+        validateUserCanManageQuestions();
         List<AiQuestion> aiQuestions = aiQuestionRepository.findAiQuestionsBy(status, competenceId);
         List<QuestionType> questionTypes = questionTypeRepository.findAll();
         List<AiQuestionBankDto> aiQuestionBankDtos = new ArrayList<>();
@@ -68,6 +73,7 @@ public class AiQuestionBankService {
 
     @Transactional
     public void reviewAiQuestion(Integer aiQuestionId, AiQuestionReviewRequestDto aiQuestionReviewRequestDto) {
+        validateUserCanManageQuestions();
         AiQuestion aiQuestion = getValidAiQuestionBy(aiQuestionId);
         if (!STATUS_PENDING.getCode().equals(aiQuestion.getStatus())) {
             throw new BadRequestException(AI_QUESTION_ALREADY_REVIEWED.getMessage(), AI_QUESTION_ALREADY_REVIEWED.name());
@@ -81,6 +87,16 @@ public class AiQuestionBankService {
         updateAiQuestionAnswerStatuses(aiQuestionAnswers, reviewStatus);
         if (isApproved) {
             copyToQuestionBank(aiQuestion, aiQuestionAnswers);
+        }
+    }
+
+    private void validateUserCanManageQuestions() {
+        User user = userService.getValidUserBy(currentUserService.getUserId());
+        String roleName = user.getRole().getName();
+
+        boolean isAllowedToManageQuestions = roleName.equals("ADMIN") || roleName.equals("HALDUR");
+        if (!isAllowedToManageQuestions) {
+            throw new ForbiddenException(NO_PERMISSION_TO_MANAGE_QUESTIONS.getMessage(), NO_PERMISSION_TO_MANAGE_QUESTIONS.name());
         }
     }
 
