@@ -23,16 +23,34 @@ public class ResultService {
 
     private final ResultRepository resultRepository;
     private final ResultMapper resultMapper;
+    private final CurrentUserService currentUserService;
+    private final UserService userService;
 
     public ResultResponseDto findTestResult(Integer userTestId) {
-//        kui tavakasutaja vaatab suvalise testi tulemust, siis selle peaks ära kaitsema
         Result result = resultRepository.findResultByUserTestId(userTestId)
                 .orElseThrow(() -> new ForbiddenException(NO_RESULT_FOUND.getMessage(), NO_RESULT_FOUND.name()));
+        validateUserCanViewResult(result);
 
         ResultResponseDto resultResponseDto = resultMapper.toResultResponseDto(result);
         BigDecimal resultScorePercentage = calculateUserResultPercentage(result);
         resultResponseDto.setUserAchievedScorePercentage(resultScorePercentage);
         return resultResponseDto;
+    }
+
+    // Tavakasutaja näeb ainult enda tulemust, ADMIN ja HALDUR kõiki.
+    // Võõra tulemuse korral sama viga mis puuduva tulemuse korral, et ei saaks ära arvata, kas see on olemas.
+    private void validateUserCanViewResult(Result result) {
+        Integer userId = currentUserService.getUserId();
+        boolean isOwnResult = result.getUserTest().getUser().getId().equals(userId);
+        if (isOwnResult) {
+            return;
+        }
+
+        String roleName = userService.getValidUserBy(userId).getRole().getName();
+        boolean isAllowedToViewAllResults = roleName.equals("ADMIN") || roleName.equals("HALDUR");
+        if (!isAllowedToViewAllResults) {
+            throw new ForbiddenException(NO_RESULT_FOUND.getMessage(), NO_RESULT_FOUND.name());
+        }
     }
 
     public BigDecimal calculateUserResultPercentage(Result result) {

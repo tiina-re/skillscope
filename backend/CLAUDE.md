@@ -94,6 +94,7 @@ Testide plaan, seis ja see, mida testid ei kata, on kirjas `docs/testing/testide
 - **Oodatud käitumine** — testid kirjutatakse oodatud käitumise (taski fail, äri reegel) põhjal, mitte implementatsiooni lugedes. Kui kood käitub reeglist erinevalt, kirjuta kõigepealt punane test, siis paranda kood.
 - **Iga test peab suutma ebaõnnestuda** — pärast testi kirjutamist murra korraks testitavat koodi (nt `== 1` → `>= 1`) ja veendu, et test läheb punaseks.
 - **Mockito range režiim** — kasutamata stub annab `UnnecessaryStubbingException`-i. Stub'i ainult seda, milleni kood antud olukorras jõuab (nt õiguste testis ainult kasutaja ja roll).
+- **AI (Gemini) testides** — päris AI-d ei kutsuta. `ChatClient` on `@Mock(answer = Answers.RETURNS_DEEP_STUBS)` ja AI vastus stub'itakse terve ahelana (vt `AiQuestionServiceTest`).
 - **Nimekonflikt** — entiteet `ee.testiplatvorm.persistence.test.Test` ja JUniti `@Test` on sama nimega: impordi JUniti oma ja kasuta entiteeti täisnimega.
 - Muutujate nimetamise reeglid kehtivad ka testides (`QuestionCreateRequestDto questionCreateRequestDto`, mitte `dto`).
 

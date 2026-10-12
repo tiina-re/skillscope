@@ -36,7 +36,7 @@ const router = createRouter({
         { path: 'competences', name: 'competenceView', component: CompetenceView, meta: STAFF },
         { path: 'questions', name: 'questionBankView', component: QuestionBankView, meta: STAFF },
         { path: 'users', name: 'usersRoute', component: UsersView, meta: STAFF },
-        { path: 'questions/ai', name: 'aiQuestionBankView', component: AiQuestionBankView },
+        { path: 'questions/ai', name: 'aiQuestionBankView', component: AiQuestionBankView, meta: STAFF },
         {
           path: 'tests/:testId(\\d+)',
           name: 'testDetailRoute',

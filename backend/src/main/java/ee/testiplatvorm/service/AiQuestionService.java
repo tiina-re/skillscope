@@ -386,6 +386,11 @@ public class AiQuestionService {
                 .filter(answer -> Boolean.TRUE.equals(answer.getIsCorrect()))
                 .count();
 
+        // Tõene/väär küsimusel on alati täpselt 2 vastust, nagu QuestionService.createQuestion-is
+        if (questionType.getName().equals("TRUE_FALSE") && answers.size() != 2) {
+            return false;
+        }
+
         boolean isMultipleChoice = questionType.getName().equals("MULTIPLE_CHOICE");
         return isMultipleChoice ? correctAnswerCount >= 1 : correctAnswerCount == 1;
     }
