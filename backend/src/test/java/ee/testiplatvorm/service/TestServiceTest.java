@@ -88,7 +88,6 @@ class TestServiceTest {
         testQuestionDtoC.setQuestionId(30);
 
         TestCreateRequestDto testCreateRequestDto = new TestCreateRequestDto();
-        testCreateRequestDto.setUserId(5);
         testCreateRequestDto.setCompetenceLevelId(2);
         testCreateRequestDto.setQuestions(List.of(testQuestionDtoA, testQuestionDtoB, testQuestionDtoC));
 
@@ -96,6 +95,7 @@ class TestServiceTest {
         ee.testiplatvorm.persistence.test.Test test = new ee.testiplatvorm.persistence.test.Test();
 
         // 6. Mock'id
+        when(currentUserService.getUserId()).thenReturn(5);
         when(userRepository.findById(5)).thenReturn(Optional.of(user));
         when(testMapper.toTest(testCreateRequestDto)).thenReturn(test);
         when(competenceLevelRepository.findById(2)).thenReturn(Optional.of(competenceLevel));
@@ -136,11 +136,11 @@ class TestServiceTest {
         User user = new User();
         user.setRole(role);
 
-        // 2. Request DTO – piisab kasutaja ID-st, sest õiguste kontroll kukub enne
+        // 2. Request DTO – sisu pole oluline, sest õiguste kontroll kukub enne
         TestCreateRequestDto testCreateRequestDto = new TestCreateRequestDto();
-        testCreateRequestDto.setUserId(5);
 
-        // 3. Mock'id
+        // 3. Mock'id – kasutaja ID tuleb sessioonist
+        when(currentUserService.getUserId()).thenReturn(5);
         when(userRepository.findById(5)).thenReturn(Optional.of(user));
 
         // Act + Assert
@@ -168,13 +168,13 @@ class TestServiceTest {
         testQuestionDto.setQuestionId(99);
 
         TestCreateRequestDto testCreateRequestDto = new TestCreateRequestDto();
-        testCreateRequestDto.setUserId(5);
         testCreateRequestDto.setCompetenceLevelId(2);
         testCreateRequestDto.setQuestions(List.of(testQuestionDto));
 
         ee.testiplatvorm.persistence.test.Test test = new ee.testiplatvorm.persistence.test.Test();
 
         // 4. Mock'id – questionRepository tagastab tühja karbi
+        when(currentUserService.getUserId()).thenReturn(5);
         when(userRepository.findById(5)).thenReturn(Optional.of(user));
         when(testMapper.toTest(testCreateRequestDto)).thenReturn(test);
         when(competenceLevelRepository.findById(2)).thenReturn(Optional.of(competenceLevel));

@@ -75,6 +75,14 @@ Igal domeenialal on oma alampakk `controller/`-is koos DTOdega, teenusklass ja p
 
 **SQL logimine** — P6Spy on seadistatud (`spy.properties`), nii et täielik parameetritega SQL kuvatakse konsoolis. Selle saab keelata, lülitades `application.properties`-is tagasi kommenteeritud tavaliste PostgreSQL seadetele.
 
+**Kasutaja tuvastamine** — Sisseloginud kasutaja ID võetakse alati `currentUserService.getUserId()` kaudu, mitte kunagi päringu DTO-st ega URL-ist. Päringust tulevat `userId`-d ei tohi kasutada selle kohta otsuste tegemiseks, kes toimingut teeb.
+
+**Õiguste kontroll** — Iga muutev või tundlik service meetod (loomine, muutmine, kustutamine, teiste kasutajate andmete vaatamine) kontrollib kasutaja rolli, sh `update`- ja `delete`-meetodid, mitte ainult `create`. Spring Securityt projektis ei ole — rolli kontrollitakse service'is ja keelatud juhul visatakse `ForbiddenException`.
+
+**Sisendi valideerimine** — Päringu DTO-de kohustuslikud väljad märgitakse Jakarta Bean Validation annotatsioonidega (`@NotNull`, `@NotBlank`, `@NotEmpty`, `@Size` jne) ja kontrolleri meetodi parameetril on `@Valid`. Service ei tohi eeldada, et väli on olemas, kui see pole valideeritud (nt `Boolean` väli võib olla `null`).
+
+**Transaktsioonid** — Service meetod, mis muudab mitut tabelit või salvestab mitu seotud kirjet (nt küsimus koos vastustega, test koos küsimustega), peab olema `@Transactional`.
+
 ### REST API
 
 Baastee: `/api`. Swagger UI on saadaval aadressil `/swagger-ui.html`.
