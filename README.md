@@ -14,7 +14,7 @@ See repo on minu isiklik jätk, kus arendan projekti edasi.
 
 ### Pärast tiimiprojekti lisatud
 
-**Testid** – 80 unit testi (JUnit 5 + Mockito + AssertJ), kirjutatud ärireeglite põhjal, osa TDD-ga:
+**Testid** – unit testid (JUnit 5 + Mockito + AssertJ), kirjutatud ärireeglite põhjal, osa TDD-ga:
 - teenused: `QuestionService`, `TestService`, `TestAttemptService`, `ResultService`, `AiQuestionService`, `AiQuestionBankService`
 - kontroller: `TestController` (`@WebMvcTest` + `MockMvc`)
 - plaan ja seis: [`docs/testing/testide-kirjutamise-plaan.md`](docs/testing/testide-kirjutamise-plaan.md)
