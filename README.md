@@ -8,12 +8,25 @@ See repo on minu isiklik jätk, kus arendan projekti edasi.
 
 ### Minu panus tiimiprojektis
 - Testi loomise vaade ja teenus (`TestService.createTest`)
-- Töölaud
+- Töölaud (`Dashboard`)
 - Küsimuste pank (`QuestionService`)
 - Küsimuste genereerimise AI chat.
 
 ### Pärast tiimiprojekti lisatud
-- Unit testid (JUnit 5 + Mockito + AssertJ) teenustele `QuestionService` ja `TestService`
+
+**Testid** – 80 unit testi (JUnit 5 + Mockito + AssertJ), kirjutatud ärireeglite põhjal, osa TDD-ga:
+- teenused: `QuestionService`, `TestService`, `TestAttemptService`, `ResultService`, `AiQuestionService`, `AiQuestionBankService`
+- kontroller: `TestController` (`@WebMvcTest` + `MockMvc`)
+- plaan ja seis: [`docs/testing/testide-kirjutamise-plaan.md`](docs/testing/testide-kirjutamise-plaan.md)
+
+**Turvaparandused** (testide kirjutamisel leitud vead):
+- küsimusi ja teste saavad vaadata, muuta ja kustutada ainult ADMIN ja HALDUR
+- AI küsimuste chat on ainult ADMIN-ile ja HALDUR-ile (nii backendis kui frontendi router'is)
+- testi looja ID võetakse sessioonist, mitte päringust
+- tavakasutaja näeb ainult enda testi tulemust
+
+**Valideerimine:**
+- tõene/väär küsimusel peab olema täpselt 2 vastusevarianti
 
 ## Struktuur
 
