@@ -7,7 +7,6 @@ import ee.testiplatvorm.controller.aiquestion.dto.AskRequest;
 import ee.testiplatvorm.controller.aiquestion.dto.GeneratedAnswerDto;
 import ee.testiplatvorm.controller.aiquestion.dto.GeneratedQuestionDto;
 import ee.testiplatvorm.infrastructure.exception.BadRequestException;
-import ee.testiplatvorm.infrastructure.exception.ForbiddenException;
 import ee.testiplatvorm.infrastructure.exception.PrimaryKeyNotFoundException;
 import ee.testiplatvorm.persistence.questiontype.QuestionType;
 import ee.testiplatvorm.persistence.questiontype.QuestionTypeRepository;
@@ -19,8 +18,6 @@ import ee.testiplatvorm.persistence.competencelevel.CompetenceLevel;
 import ee.testiplatvorm.persistence.competencelevel.CompetenceLevelRepository;
 import ee.testiplatvorm.persistence.question.Question;
 import ee.testiplatvorm.persistence.question.QuestionRepository;
-import ee.testiplatvorm.persistence.user.User;
-import ee.testiplatvorm.persistence.user.UserRepository;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,19 +27,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Pattern;
 
+import static ee.testiplatvorm.Error.AI_QUESTION_GENERATION_FAILED;
 import static ee.testiplatvorm.Error.INVALID_AI_QUESTION;
-import static ee.testiplatvorm.Error.NO_PERMISSION_TO_CREATE_QUESTIONS;
 import static ee.testiplatvorm.Status.STATUS_ACTIVE;
 import static ee.testiplatvorm.Status.STATUS_PENDING;
+import static ee.testiplatvorm.service.AiQuestionValidationService.MAX_ANSWER_COUNT;
 
 @Service
 public class AiQuestionService {
 
     private static final int MAX_QUESTION_COUNT = 5;
-    private static final int MAX_ANSWER_COUNT = 5;
-    private static final int MAX_DESCRIPTION_LINE_COUNT = 12;
 
     private static final String SELECTION_SYSTEM_PROMPT = """
             You help a question author on a competence testing platform.
@@ -131,11 +126,6 @@ public class AiQuestionService {
             %s
             """;
 
-    // Märgendid, mis reedavad vastuse õigsuse, nt "(õige)", "- vale", "✓"
-    private static final Pattern ANSWER_CORRECTNESS_HINT = Pattern.compile(
-            "[✓✔✗✘]|\\b(õige|vale|correct|wrong|incorrect)\\s*(vastus|answer)?\\s*[)\\]]|[(\\[]\\s*(õige|vale|correct|wrong|incorrect)\\b",
-            Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
-
     private static final String DEFAULT_CLARIFYING_QUESTION = "Millise kompetentsi ja taseme jaoks küsimus luua?";
 
     // AI vastuste kujud - neid ei tagastata otse frontendile
@@ -162,7 +152,7 @@ public class AiQuestionService {
     private final AiQuestionRepository aiQuestionRepository;
     private final AiQuestionAnswerRepository aiQuestionAnswerRepository;
     private final CurrentUserService currentUserService;
-    private final UserRepository userRepository;
+    private final AiQuestionValidationService aiQuestionValidationService;
 
     public AiQuestionService(ChatClient.Builder builder,
                              CompetenceLevelRepository competenceLevelRepository,
@@ -171,7 +161,7 @@ public class AiQuestionService {
                              AiQuestionRepository aiQuestionRepository,
                              AiQuestionAnswerRepository aiQuestionAnswerRepository,
                              CurrentUserService currentUserService,
-                             UserRepository userRepository) {
+                             AiQuestionValidationService aiQuestionValidationService) {
         this.chatClient = builder.build();
         this.competenceLevelRepository = competenceLevelRepository;
         this.questionTypeRepository = questionTypeRepository;
@@ -179,12 +169,12 @@ public class AiQuestionService {
         this.aiQuestionRepository = aiQuestionRepository;
         this.aiQuestionAnswerRepository = aiQuestionAnswerRepository;
         this.currentUserService = currentUserService;
-        this.userRepository = userRepository;
+        this.aiQuestionValidationService = aiQuestionValidationService;
     }
 
     public AiQuestionGenerationResponse generateQuestions(AskRequest askRequest) {
         // Õigused kontrollitakse enne AI päringut, et ilma õiguseta päringutele raha ei kuluks
-        getValidQuestionAuthorId();
+        currentUserService.getValidQuestionAuthorId();
         String instructions = createConversationText(askRequest);
 
         List<CompetenceLevel> competenceLevels = competenceLevelRepository.findAllCompetenceLevelsBy(STATUS_ACTIVE.getCode());
@@ -202,7 +192,7 @@ public class AiQuestionService {
         }
 
         if (generatedQuestionDtos.isEmpty()) {
-            throw new IllegalStateException("AI ei suutnud korrektseid küsimusi genereerida, proovi uuesti");
+            throw new BadRequestException(AI_QUESTION_GENERATION_FAILED.getMessage(), AI_QUESTION_GENERATION_FAILED.name());
         }
 
         AiQuestionGenerationResponse aiQuestionGenerationResponse = new AiQuestionGenerationResponse();
@@ -212,7 +202,7 @@ public class AiQuestionService {
 
     @Transactional
     public Integer saveQuestion(AiQuestionSaveRequest aiQuestionSaveRequest) {
-        Integer userId = getValidQuestionAuthorId();
+        Integer userId = currentUserService.getValidQuestionAuthorId();
 
         Integer competenceLevelId = aiQuestionSaveRequest.getCompetenceLevelId();
         CompetenceLevel competenceLevel = competenceLevelRepository.findById(competenceLevelId)
@@ -222,7 +212,7 @@ public class AiQuestionService {
         QuestionType questionType = questionTypeRepository.findById(questionTypeId)
                 .orElseThrow(() -> new PrimaryKeyNotFoundException("questionTypeId", questionTypeId));
 
-        boolean isValidQuestion = isValidQuestion(aiQuestionSaveRequest.getTitle(), aiQuestionSaveRequest.getDescription(),
+        boolean isValidQuestion = aiQuestionValidationService.isValidQuestion(aiQuestionSaveRequest.getTitle(), aiQuestionSaveRequest.getDescription(),
                 aiQuestionSaveRequest.getAnswers(), questionType);
         if (!isValidQuestion) {
             throw new BadRequestException(INVALID_AI_QUESTION.getMessage(), INVALID_AI_QUESTION.name());
@@ -231,18 +221,6 @@ public class AiQuestionService {
         AiQuestion aiQuestion = saveAiQuestion(aiQuestionSaveRequest, competenceLevel, questionTypeId, userId);
         saveAiQuestionAnswers(aiQuestionSaveRequest.getAnswers(), aiQuestion);
         return aiQuestion.getId();
-    }
-
-    private Integer getValidQuestionAuthorId() {
-        Integer userId = currentUserService.getUserId();
-        User user = userRepository.findById(userId).orElseThrow(() -> new PrimaryKeyNotFoundException("userId", userId));
-        String roleName = user.getRole().getName();
-
-        boolean isAllowedToCreateQuestions = roleName.equals("ADMIN") || roleName.equals("HALDUR");
-        if (!isAllowedToCreateQuestions) {
-            throw new ForbiddenException(NO_PERMISSION_TO_CREATE_QUESTIONS.getMessage(), NO_PERMISSION_TO_CREATE_QUESTIONS.name());
-        }
-        return userId;
     }
 
     // Varasemad sõnumid + viimane sõnum ühe tekstina, viimane sõnum on eraldi esile tõstetud
@@ -357,42 +335,11 @@ public class AiQuestionService {
             if (generatedQuestionDtos.size() == questionCount) {
                 break;
             }
-            if (isValidQuestion(aiGeneratedQuestion.title(), aiGeneratedQuestion.description(), aiGeneratedQuestion.answers(), questionType)) {
+            if (aiQuestionValidationService.isValidQuestion(aiGeneratedQuestion.title(), aiGeneratedQuestion.description(), aiGeneratedQuestion.answers(), questionType)) {
                 generatedQuestionDtos.add(createQuestionDto(aiGeneratedQuestion, competenceLevel, questionType));
             }
         }
         return generatedQuestionDtos;
-    }
-
-    private boolean isValidQuestion(String title, String description, List<GeneratedAnswerDto> answers, QuestionType questionType) {
-        if (title == null || title.isBlank() || answers == null
-                || answers.size() < 2 || answers.size() > MAX_ANSWER_COUNT) {
-            return false;
-        }
-
-        // Kirjelduses on lubatud kuni 10-realine koodinäide + paar rida juhist
-        if (description != null && description.lines().count() > MAX_DESCRIPTION_LINE_COUNT) {
-            return false;
-        }
-
-        boolean hasCorrectnessHint = answers.stream()
-                .anyMatch(answer -> answer.getAnswerText() == null
-                        || ANSWER_CORRECTNESS_HINT.matcher(answer.getAnswerText()).find());
-        if (hasCorrectnessHint) {
-            return false;
-        }
-
-        long correctAnswerCount = answers.stream()
-                .filter(answer -> Boolean.TRUE.equals(answer.getIsCorrect()))
-                .count();
-
-        // Tõene/väär küsimusel on alati täpselt 2 vastust, nagu QuestionService.createQuestion-is
-        if (questionType.getName().equals("TRUE_FALSE") && answers.size() != 2) {
-            return false;
-        }
-
-        boolean isMultipleChoice = questionType.getName().equals("MULTIPLE_CHOICE");
-        return isMultipleChoice ? correctAnswerCount >= 1 : correctAnswerCount == 1;
     }
 
     private GeneratedQuestionDto createQuestionDto(AiGeneratedQuestion aiGeneratedQuestion,

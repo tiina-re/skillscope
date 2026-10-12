@@ -95,7 +95,7 @@ export default {
         v-for="statCard in statCards"
         :key="statCard.key"
         :to="statCard.to"
-        class="card stat-card shadow rounded-4 text-decoration-none"
+        class="card stat-card app-surface rounded-4 text-decoration-none"
         :class="{ 'stat-card-highlighted': statCard.isHighlighted }"
       >
         <div class="card-body d-flex flex-column gap-3 p-4">
@@ -126,7 +126,6 @@ export default {
 }
 
 .stat-card {
-  border: none;
   transition:
     transform 0.15s ease,
     box-shadow 0.15s ease;
@@ -135,7 +134,7 @@ export default {
 /* Kirjutab üle main.css globaalse a:hover rohelise tausta */
 .stat-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  box-shadow: var(--app-surface-shadow-hover);
   background-color: var(--bs-card-bg);
 }
 
@@ -168,8 +167,6 @@ export default {
 }
 
 .stat-card-highlighted {
-  box-shadow:
-    0 0 0 1px var(--bs-warning-border-subtle),
-    var(--bs-box-shadow) !important;
+  border-color: var(--bs-warning-border-subtle);
 }
 </style>

@@ -10,7 +10,17 @@ import QuestionBankTabs from '@/components/QuestionBankTabs.vue'
 import QuestionAnswerOption from '@/components/QuestionAnswerOption.vue'
 import BaseModal from '@/components/modal/BaseModal.vue'
 import QuestionCreateForm from '@/components/QuestionCreateForm.vue'
-import { PhCaretDown, PhCheckCircle, PhPencilSimple, PhPlus, PhTrash } from '@phosphor-icons/vue'
+import QuestionBankAiGenerator from '@/components/QuestionBankAiGenerator.vue'
+import {
+  PhArrowLeft,
+  PhArrowRight,
+  PhCaretDown,
+  PhCheckCircle,
+  PhPencilSimple,
+  PhPlus,
+  PhSparkle,
+  PhTrash,
+} from '@phosphor-icons/vue'
 
 export default {
   name: 'QuestionBankView',
@@ -23,10 +33,14 @@ export default {
     QuestionBankCard,
     QuestionBankTabs,
     QuestionAnswerOption,
+    QuestionBankAiGenerator,
+    PhArrowLeft,
+    PhArrowRight,
     PhCaretDown,
     PhCheckCircle,
     PhPencilSimple,
     PhPlus,
+    PhSparkle,
     PhTrash,
   },
 
@@ -38,6 +52,7 @@ export default {
   data() {
     return {
       isLoading: true,
+      isAiGeneratorOpen: false,
       isQuestionCreateModalOpen: false,
       isQuestionCreatedModalOpen: false,
       createdQuestionTitle: '',
@@ -96,6 +111,10 @@ export default {
       )
       return selectedCompetence ? selectedCompetence.competenceName : 'Kõik kompetentsid'
     },
+    // AI vaatesse minnes libiseb sisu vasakule, tagasi tulles paremale
+    contentTransitionName() {
+      return this.isAiGeneratorOpen ? 'slide-left' : 'slide-right'
+    },
   },
 
   methods: {
@@ -106,6 +125,12 @@ export default {
     },
     handleGetCompetences(response) {
       this.competences = response.data
+    },
+    openAiGenerator() {
+      this.isAiGeneratorOpen = true
+    },
+    closeAiGenerator() {
+      this.isAiGeneratorOpen = false
     },
     selectCompetence(competenceId) {
       this.selectedCompetenceId = competenceId
@@ -207,7 +232,15 @@ export default {
     <div v-else class="question-bank-content mx-auto">
       <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
         <h1 class="text-uppercase fw-bold h3 mb-0">Küsimuste pank</h1>
-        <div class="d-flex flex-wrap gap-2">
+        <button
+          v-if="isAiGeneratorOpen"
+          class="btn btn-light border fw-bold rounded-2 d-flex align-items-center gap-2"
+          @click="closeAiGenerator"
+        >
+          <PhArrowLeft :size="16" weight="bold" />
+          <span>Tagasi küsimuste panka</span>
+        </button>
+        <div v-else class="d-flex flex-wrap gap-2">
           <div class="dropdown">
             <button
               class="btn btn-light border fw-bold rounded-2 d-flex align-items-center gap-2"
@@ -246,59 +279,77 @@ export default {
             <span>Lisa uus küsimus</span>
             <PhPlus :size="16" weight="bold" />
           </button>
+          <button
+            class="btn btn-ai fw-bold rounded-2 d-flex align-items-center gap-2"
+            @click="openAiGenerator"
+          >
+            <PhSparkle :size="16" weight="bold" />
+            <span>Lisa küsimusi AI-ga</span>
+            <PhArrowRight :size="16" weight="bold" />
+          </button>
         </div>
       </div>
 
-      <QuestionBankTabs />
+      <div class="question-bank-slider">
+        <Transition :name="contentTransitionName" mode="out-in">
+          <QuestionBankAiGenerator v-if="isAiGeneratorOpen" key="aiGenerator" />
+          <div v-else key="questionList">
+            <QuestionBankTabs />
 
-      <div v-if="!questions.length" class="card shadow rounded-4 p-5 text-center text-secondary">
-        Küsimusi ei leitud
-      </div>
+            <div
+              v-if="!questions.length"
+              class="card app-surface rounded-4 p-5 text-center text-secondary"
+            >
+              Küsimusi ei leitud
+            </div>
 
-      <div class="d-flex flex-column gap-4">
-        <QuestionBankCard
-          v-for="question in questions"
-          :key="question.questionId"
-          :status-badge="questionStatus[question.questionStatus]"
-          :competence-name="question.competenceName"
-          :question-type-label="questionTypeLabels[question.questionTypeName]"
-          :competence-level-name="question.competenceLevelName"
-          :score="question.score"
-        >
-          <template #title>{{ question.questionTitle }}</template>
-          <template #menu>
-            <li>
-              <button
-                class="dropdown-item d-flex align-items-center gap-2"
-                @click="openEditForm(question)"
+            <div class="d-flex flex-column gap-4">
+              <QuestionBankCard
+                v-for="question in questions"
+                :key="question.questionId"
+                :status-badge="questionStatus[question.questionStatus]"
+                :competence-name="question.competenceName"
+                :question-type-label="questionTypeLabels[question.questionTypeName]"
+                :competence-level-name="question.competenceLevelName"
+                :score="question.score"
               >
-                <PhPencilSimple :size="16" />
-                Muuda
-              </button>
-            </li>
-            <template v-if="question.questionStatus !== 'I'">
-              <li><hr class="dropdown-divider" /></li>
-              <li>
-                <button
-                  class="dropdown-item d-flex align-items-center gap-2 text-danger"
-                  @click="openDeleteConfirmation(question)"
-                >
-                  <PhTrash :size="16" />
-                  Kustuta
-                </button>
-              </li>
-            </template>
-          </template>
-          <template #description>{{ question.questionDescription }}</template>
-          <template #answers>
-            <QuestionAnswerOption
-              v-for="answer in question.answers"
-              :key="answer.questionAnswerId"
-              :answer-text="answer.answerText"
-              :correct-choice="answer.correctChoice"
-            />
-          </template>
-        </QuestionBankCard>
+                <template #title>{{ question.questionTitle }}</template>
+                <template #menu>
+                  <li>
+                    <button
+                      class="dropdown-item d-flex align-items-center gap-2"
+                      @click="openEditForm(question)"
+                    >
+                      <PhPencilSimple :size="16" />
+                      Muuda
+                    </button>
+                  </li>
+                  <template v-if="question.questionStatus !== 'I'">
+                    <li><hr class="dropdown-divider" /></li>
+                    <li>
+                      <button
+                        class="dropdown-item d-flex align-items-center gap-2 text-danger"
+                        @click="openDeleteConfirmation(question)"
+                      >
+                        <PhTrash :size="16" />
+                        Kustuta
+                      </button>
+                    </li>
+                  </template>
+                </template>
+                <template #description>{{ question.questionDescription }}</template>
+                <template #answers>
+                  <QuestionAnswerOption
+                    v-for="answer in question.answers"
+                    :key="answer.questionAnswerId"
+                    :answer-text="answer.answerText"
+                    :correct-choice="answer.correctChoice"
+                  />
+                </template>
+              </QuestionBankCard>
+            </div>
+          </div>
+        </Transition>
       </div>
     </div>
     <BaseModal
@@ -470,7 +521,26 @@ export default {
   --bs-dropdown-min-width: 12rem;
   --bs-dropdown-bg: var(--bs-gray-100);
   --bs-dropdown-border-radius: 0.75rem;
-  --bs-dropdown-link-color: var(--bs-black);
+  --bs-dropdown-link-color: var(--bs-emphasis-color);
+}
+
+/* AI nupp kasutab samu kollaseid toone nagu .badge-in-progress (theme.css) */
+.btn-ai {
+  --bs-btn-color: var(--bs-warning-text-emphasis);
+  --bs-btn-bg: var(--bs-warning-bg-subtle);
+  --bs-btn-border-color: var(--bs-warning-border-subtle);
+  /* Hõljumisel tumeneb ainult ääris, et nupp annaks tagasisidet */
+  --bs-btn-hover-color: var(--bs-warning-text-emphasis);
+  --bs-btn-hover-bg: var(--bs-warning-bg-subtle);
+  --bs-btn-hover-border-color: var(--bs-warning);
+  --bs-btn-active-color: var(--bs-warning-text-emphasis);
+  --bs-btn-active-bg: var(--bs-warning-bg-subtle);
+  --bs-btn-active-border-color: var(--bs-warning);
+}
+
+/* Peidab välja libiseva sisu, et lehele ei tekiks horisontaalset kerimisriba */
+.question-bank-slider {
+  overflow-x: clip;
 }
 
 @media (min-width: 992px) {

@@ -64,7 +64,6 @@ public class AiQuestionController {
     @ApiResponse(responseCode = "403", description = "Kasutajal puudub õigus küsimusi luua (lubatud ainult ADMIN ja HALDUR rollile)")
     @ApiResponse(responseCode = "404", description = "competenceLevelId või questionTypeId ei leitud")
     public Integer saveQuestion(@RequestBody @Valid AiQuestionSaveRequest aiQuestionSaveRequest) {
-        Integer aiQuestionId = aiQuestionService.saveQuestion(aiQuestionSaveRequest);
-        return aiQuestionId;
+        return aiQuestionService.saveQuestion(aiQuestionSaveRequest);
     }
 }

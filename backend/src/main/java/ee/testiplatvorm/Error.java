@@ -15,6 +15,7 @@ public enum Error {
     EMAIL_ALREADY_EXISTS("Selle e-posti aadressiga kasutaja on juba olemas"),
     NO_RESULT_FOUND("Tulemust ei leitud"),
     AI_QUESTION_ALREADY_REVIEWED("AI küsimus on juba üle vaadatud"),
+    AI_QUESTION_GENERATION_FAILED("AI ei suutnud korrektseid küsimusi luua, proovi uuesti"),
     INVALID_CORRECT_ANSWER_COUNT("Õigete vastuste arv ei vasta küsimuse tüübile");
 
     private final String message;

@@ -66,7 +66,7 @@ export default {
 .base-modal-content .modal-header {
   border-bottom: none;
   padding: 2rem 2.5rem 0.5rem;
-  color: var(--brand-slate);
+  color: var(--bs-primary);
 }
 
 .base-modal-content .modal-body {

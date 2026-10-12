@@ -52,7 +52,7 @@ export default {
 <style scoped>
 .account-btn,
 .account-btn:hover {
-  color: #37474f;
+  color: var(--bs-primary);
 }
 
 /* Sisselogitud kasutajal brändi roheline (vt assets/theme.css) */
@@ -65,6 +65,6 @@ export default {
   --bs-dropdown-min-width: 10rem;
   --bs-dropdown-bg: var(--bs-gray-100);
   --bs-dropdown-border-radius: 0.75rem;
-  --bs-dropdown-link-color: var(--bs-black);
+  --bs-dropdown-link-color: var(--bs-emphasis-color);
 }
 </style>

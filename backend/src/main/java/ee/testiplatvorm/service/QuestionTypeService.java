@@ -2,6 +2,7 @@ package ee.testiplatvorm.service;
 
 
 import ee.testiplatvorm.controller.questiontype.dto.QuestionTypeDto;
+import ee.testiplatvorm.infrastructure.exception.PrimaryKeyNotFoundException;
 import ee.testiplatvorm.persistence.questiontype.QuestionType;
 import ee.testiplatvorm.persistence.questiontype.QuestionTypeMapper;
 import ee.testiplatvorm.persistence.questiontype.QuestionTypeRepository;
@@ -25,4 +26,12 @@ public class QuestionTypeService {
 
     }
 
+    public List<QuestionType> findAllQuestionTypes() {
+        return questionTypeRepository.findAll();
+    }
+
+    public QuestionType getValidQuestionTypeBy(Integer questionTypeId) {
+        return questionTypeRepository.findById(questionTypeId)
+                .orElseThrow(() -> new PrimaryKeyNotFoundException("questionTypeId", questionTypeId));
+    }
 }

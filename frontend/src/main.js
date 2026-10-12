@@ -6,6 +6,10 @@ import axios from 'axios'
 
 import App from './App.vue'
 import router from './router'
+import ThemeService from './services/ThemeService.js'
+
+// Hele/tume režiim enne esimest renderdamist, et leht ei vilguks
+ThemeService.applyTheme(ThemeService.getInitialTheme())
 
 // Bootstrap
 import 'bootstrap/dist/css/bootstrap.min.css'

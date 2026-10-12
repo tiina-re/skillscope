@@ -10,10 +10,11 @@ export default {
     questionTypeLabel: { type: String, default: '' },
     competenceLevelName: { type: String, default: '' },
     score: { type: Number, default: null },
+    isInitiallyOpen: { type: Boolean, default: false },
   },
   data() {
     return {
-      isOpen: false,
+      isOpen: this.isInitiallyOpen,
     }
   },
   methods: {
@@ -25,7 +26,7 @@ export default {
 </script>
 
 <template>
-  <div class="card question-card shadow rounded-4">
+  <div class="card question-card app-surface rounded-4">
     <div class="card-body question-card-body">
       <div class="d-flex align-items-start gap-3 question-card-header" @click="toggleOpen">
         <div class="question-card-heading">
@@ -89,6 +90,10 @@ export default {
         <div class="answers-grid">
           <slot name="answers"></slot>
         </div>
+
+        <div v-if="$slots.actions" class="mt-4">
+          <slot name="actions"></slot>
+        </div>
       </div>
     </div>
   </div>
@@ -103,7 +108,7 @@ export default {
 }
 
 .question-card:hover {
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  box-shadow: var(--app-surface-shadow-hover);
 }
 
 .question-card-header {
@@ -255,6 +260,6 @@ export default {
   --bs-dropdown-min-width: 10rem;
   --bs-dropdown-bg: var(--bs-gray-100);
   --bs-dropdown-border-radius: 0.75rem;
-  --bs-dropdown-link-color: var(--bs-black);
+  --bs-dropdown-link-color: var(--bs-emphasis-color);
 }
 </style>

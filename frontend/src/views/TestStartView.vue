@@ -67,7 +67,7 @@ export default {
 
     <TestNotFoundIllustration v-else-if="errorMessage.length" :message="errorMessage" />
 
-    <div v-else class="card my-4 shadow p-4 start-card">
+    <div v-else class="card my-4 app-surface p-4 start-card">
       <div class="card-body">
         <p class="eyebrow text-brand mb-2">{{ test.competence }}</p>
         <h1 class="text-uppercase fw-bold h3">{{ test.title }}</h1>
