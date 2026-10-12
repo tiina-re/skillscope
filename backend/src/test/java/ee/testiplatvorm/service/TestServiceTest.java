@@ -1,9 +1,11 @@
 package ee.testiplatvorm.service;
 
 import ee.testiplatvorm.controller.test.dto.TestCreateRequestDto;
+import ee.testiplatvorm.controller.test.dto.TestDetailDto;
 import ee.testiplatvorm.controller.test.dto.TestQuestionDto;
 import ee.testiplatvorm.infrastructure.exception.ForbiddenException;
 import ee.testiplatvorm.infrastructure.exception.PrimaryKeyNotFoundException;
+import ee.testiplatvorm.persistence.Profile;
 import ee.testiplatvorm.persistence.ProfileRepository;
 import ee.testiplatvorm.persistence.Role;
 import ee.testiplatvorm.persistence.competencelevel.CompetenceLevel;
@@ -88,7 +90,6 @@ class TestServiceTest {
         testQuestionDtoC.setQuestionId(30);
 
         TestCreateRequestDto testCreateRequestDto = new TestCreateRequestDto();
-        testCreateRequestDto.setUserId(5);
         testCreateRequestDto.setCompetenceLevelId(2);
         testCreateRequestDto.setQuestions(List.of(testQuestionDtoA, testQuestionDtoB, testQuestionDtoC));
 
@@ -96,6 +97,7 @@ class TestServiceTest {
         ee.testiplatvorm.persistence.test.Test test = new ee.testiplatvorm.persistence.test.Test();
 
         // 6. Mock'id
+        when(currentUserService.getUserId()).thenReturn(5);
         when(userRepository.findById(5)).thenReturn(Optional.of(user));
         when(testMapper.toTest(testCreateRequestDto)).thenReturn(test);
         when(competenceLevelRepository.findById(2)).thenReturn(Optional.of(competenceLevel));
@@ -136,11 +138,11 @@ class TestServiceTest {
         User user = new User();
         user.setRole(role);
 
-        // 2. Request DTO – piisab kasutaja ID-st, sest õiguste kontroll kukub enne
+        // 2. Request DTO – sisu pole oluline, sest õiguste kontroll kukub enne
         TestCreateRequestDto testCreateRequestDto = new TestCreateRequestDto();
-        testCreateRequestDto.setUserId(5);
 
-        // 3. Mock'id
+        // 3. Mock'id – kasutaja ID tuleb sessioonist
+        when(currentUserService.getUserId()).thenReturn(5);
         when(userRepository.findById(5)).thenReturn(Optional.of(user));
 
         // Act + Assert
@@ -168,13 +170,13 @@ class TestServiceTest {
         testQuestionDto.setQuestionId(99);
 
         TestCreateRequestDto testCreateRequestDto = new TestCreateRequestDto();
-        testCreateRequestDto.setUserId(5);
         testCreateRequestDto.setCompetenceLevelId(2);
         testCreateRequestDto.setQuestions(List.of(testQuestionDto));
 
         ee.testiplatvorm.persistence.test.Test test = new ee.testiplatvorm.persistence.test.Test();
 
         // 4. Mock'id – questionRepository tagastab tühja karbi
+        when(currentUserService.getUserId()).thenReturn(5);
         when(userRepository.findById(5)).thenReturn(Optional.of(user));
         when(testMapper.toTest(testCreateRequestDto)).thenReturn(test);
         when(competenceLevelRepository.findById(2)).thenReturn(Optional.of(competenceLevel));
@@ -188,6 +190,102 @@ class TestServiceTest {
         // Test ise salvestatakse enne küsimuste kontrolli (päris rakenduses @Transactional tühistab selle),
         // aga küsimuse seost ei tohi salvestada
         verify(testQuestionRepository, never()).save(any());
+    }
+
+    // --- Samm 3: testi detailvaade ---
+
+    // Abimeetod: sisse loginud kasutaja ID on 5 ja tal on antud roll
+    private void mockCurrentUserWithRole(String roleName) {
+        Role role = new Role();
+        role.setName(roleName);
+        User user = new User();
+        user.setRole(role);
+        when(currentUserService.getUserId()).thenReturn(5);
+        when(userService.getValidUserBy(5)).thenReturn(user);
+    }
+
+    // Abimeetod: test ID-ga 1, mille lõi kasutaja ID-ga 7
+    private ee.testiplatvorm.persistence.test.Test mockExistingTestCreatedByUser7() {
+        User createdBy = new User();
+        createdBy.setId(7);
+        createdBy.setEmail("looja@test.ee");
+        ee.testiplatvorm.persistence.test.Test test = new ee.testiplatvorm.persistence.test.Test();
+        test.setCreatedBy(createdBy);
+
+        when(testRepository.findById(1)).thenReturn(Optional.of(test));
+        when(testMapper.toTestDetailDto(test)).thenReturn(new TestDetailDto());
+        return test;
+    }
+
+    @Test
+    void findTestDetail_adminAndCreatorHasProfile_returnsCountsAndCreatorName() {
+        // Arrange
+        mockCurrentUserWithRole("ADMIN");
+        mockExistingTestCreatedByUser7();
+        Profile profile = new Profile();
+        profile.setFirstName("Mari");
+        profile.setLastName("Maasikas");
+        when(testQuestionRepository.countQuestionsBy(1)).thenReturn(3L);
+        when(testQuestionRepository.sumQuestionScoresBy(1)).thenReturn(10L);
+        when(profileRepository.findProfileBy(7)).thenReturn(Optional.of(profile));
+
+        // Act
+        TestDetailDto testDetailDto = testService.findTestDetail(1);
+
+        // Assert
+        assertThat(testDetailDto.getQuestionCount()).isEqualTo(3L);
+        assertThat(testDetailDto.getMaxScore()).isEqualTo(10L);
+        assertThat(testDetailDto.getCreatedBy()).isEqualTo("Mari Maasikas");
+    }
+
+    @Test
+    void findTestDetail_creatorHasNoProfile_returnsCreatorEmail() {
+        // Arrange
+        mockCurrentUserWithRole("ADMIN");
+        mockExistingTestCreatedByUser7();
+        when(profileRepository.findProfileBy(7)).thenReturn(Optional.empty());
+
+        // Act
+        TestDetailDto testDetailDto = testService.findTestDetail(1);
+
+        // Assert
+        assertThat(testDetailDto.getCreatedBy()).isEqualTo("looja@test.ee");
+    }
+
+    @Test
+    void findTestDetail_haldur_returnsTestDetail() {
+        // Arrange
+        mockCurrentUserWithRole("HALDUR");
+        mockExistingTestCreatedByUser7();
+
+        // Act
+        TestDetailDto testDetailDto = testService.findTestDetail(1);
+
+        // Assert
+        assertThat(testDetailDto).isNotNull();
+    }
+
+    @Test
+    void findTestDetail_userWithoutPermission_throwsForbiddenException() {
+        // Arrange
+        mockCurrentUserWithRole("KASUTAJA");
+
+        // Act + Assert
+        assertThatThrownBy(() -> testService.findTestDetail(1))
+                .isInstanceOf(ForbiddenException.class);
+
+        verify(testRepository, never()).findById(any());
+    }
+
+    @Test
+    void findTestDetail_testDoesNotExist_throwsPrimaryKeyNotFoundException() {
+        // Arrange
+        mockCurrentUserWithRole("ADMIN");
+        when(testRepository.findById(99)).thenReturn(Optional.empty());
+
+        // Act + Assert
+        assertThatThrownBy(() -> testService.findTestDetail(99))
+                .isInstanceOf(PrimaryKeyNotFoundException.class);
     }
 
 }

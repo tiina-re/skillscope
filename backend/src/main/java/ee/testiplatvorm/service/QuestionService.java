@@ -26,6 +26,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 
 import static ee.testiplatvorm.Error.NO_PERMISSION_TO_CREATE_QUESTIONS;
+import static ee.testiplatvorm.Error.NO_PERMISSION_TO_MANAGE_QUESTIONS;
 import static ee.testiplatvorm.Status.STATUS_ACTIVE;
 import static ee.testiplatvorm.Status.STATUS_INACTIVE;
 
@@ -42,14 +43,17 @@ public class QuestionService {
     private final UserRepository userRepository;
     private final QuestionTypeRepository questionTypeRepository;
     private final CompetenceLevelRepository competenceLevelRepository;
+    private final UserService userService;
 
     public List<QuestionResponseDto> findQuestionsBy(Integer competenceLevelId) {
+        validateUserCanManageQuestions();
         List<Question> questions = questionRepository.findQuestionsBy(competenceLevelId, STATUS_ACTIVE.getCode());
         List<QuestionResponseDto> questionResponseDtos = questionMapper.toQuestionResponseDtos(questions);
         return questionResponseDtos;
     }
 
     public List<QuestionBankDto> findAllQuestionsBy(Integer competenceId) {
+        validateUserCanManageQuestions();
         List<Question> allQuestions = questionRepository.findAllQuestionsBy(competenceId);
         List<QuestionBankDto> questionBankDtos = questionMapper.toQuestionBankDtos(allQuestions);
 
@@ -60,6 +64,7 @@ public class QuestionService {
     }
 
     public void updateQuestion(Integer questionId, QuestionUpdateRequestDto questionUpdateRequestDto) {
+        validateUserCanManageQuestions();
         Question question = getValidQuestionBy(questionId);
         questionMapper.updateQuestion(questionUpdateRequestDto, question);
         question.setUpdatedAt(OffsetDateTime.now());
@@ -67,10 +72,21 @@ public class QuestionService {
     }
 
     public void deleteQuestion(Integer questionId) {
+        validateUserCanManageQuestions();
         Question question = getValidQuestionBy(questionId);
         question.setStatus(STATUS_INACTIVE.getCode());
         question.setUpdatedAt(OffsetDateTime.now());
         questionRepository.save(question);
+    }
+
+    private void validateUserCanManageQuestions() {
+        User user = userService.getValidUserBy(currentUserService.getUserId());
+        String roleName = user.getRole().getName();
+
+        boolean isAllowedToManageQuestions = roleName.equals("ADMIN") || roleName.equals("HALDUR");
+        if (!isAllowedToManageQuestions) {
+            throw new ForbiddenException(NO_PERMISSION_TO_MANAGE_QUESTIONS.getMessage(), NO_PERMISSION_TO_MANAGE_QUESTIONS.name());
+        }
     }
 
     public Question getValidQuestionBy(Integer questionId) {

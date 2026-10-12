@@ -11,8 +11,6 @@ import java.util.List;
 @Data
 public class TestCreateRequestDto {
     @NotNull
-    private Integer userId;
-    @NotNull
     private Integer competenceId;
     @NotNull
     private Integer competenceLevelId;

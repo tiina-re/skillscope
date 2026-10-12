@@ -7,6 +7,7 @@ public enum Error {
     INCORRECT_CREDENTIALS("Vale emaili aadress või salasõna"),
     NO_PERMISSION("Sul puudub õigus testi luua"),
     NO_PERMISSION_TO_CREATE_QUESTIONS("Sul puudub õigus küsimusi luua"),
+    NO_PERMISSION_TO_MANAGE_QUESTIONS("Sul puudub õigus küsimusi vaadata ega muuta"),
     NO_PERMISSION_TO_VIEW_TEST("Sul puudub õigus testi vaadata"),
     NO_PERMISSION_TO_VIEW_DASHBOARD("Sul puudub õigus töölauda vaadata"),
     INVALID_AI_QUESTION("Küsimus ei vasta reeglitele (vastuste arv, õigete vastuste arv, koodinäite pikkus või vastuses on vihje õigele vastusele)"),

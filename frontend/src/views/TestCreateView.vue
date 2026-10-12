@@ -105,7 +105,6 @@ export default {
 
       if (this.errorMessageIsEmpty()) {
         const test = {
-          userId: sessionStorage.getItem('userId'),
           competenceId: this.competenceId,
           competenceLevelId: this.competenceLevelId,
           testName: this.testName,

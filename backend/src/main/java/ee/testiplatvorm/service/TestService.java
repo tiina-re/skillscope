@@ -98,7 +98,7 @@ public class TestService {
 
     @Transactional
     public void createTest(TestCreateRequestDto testCreateRequestDto) {
-        Integer userId = testCreateRequestDto.getUserId();
+        Integer userId = currentUserService.getUserId();
 
         User user = userRepository.findById(userId).orElseThrow(() -> new PrimaryKeyNotFoundException("userId", userId));
         String roleName = user.getRole().getName();
