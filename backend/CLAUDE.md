@@ -17,7 +17,7 @@ See fail annab juhiseid Claude Code'ile (claude.ai/code) selles repositooriumis 
 ./gradlew test
 
 # Ühe testiklassi käivitamine
-./gradlew test --tests "ee.minuprojekt.MinuprojektApplicationTests"
+./gradlew test --tests "ee.testiplatvorm.service.QuestionServiceTest"
 
 # Ainult kompileerimine (käivitab ka MapStructi annotatsiooni töötluse)
 ./gradlew compileJava
@@ -82,6 +82,20 @@ Igal domeenialal on oma alampakk `controller/`-is koos DTOdega, teenusklass ja p
 **Sisendi valideerimine** — Päringu DTO-de kohustuslikud väljad märgitakse Jakarta Bean Validation annotatsioonidega (`@NotNull`, `@NotBlank`, `@NotEmpty`, `@Size` jne) ja kontrolleri meetodi parameetril on `@Valid`. Service ei tohi eeldada, et väli on olemas, kui see pole valideeritud (nt `Boolean` väli võib olla `null`).
 
 **Transaktsioonid** — Service meetod, mis muudab mitut tabelit või salvestab mitu seotud kirjet (nt küsimus koos vastustega, test koos küsimustega), peab olema `@Transactional`.
+
+### Testid
+
+Testide plaan, seis ja see, mida testid ei kata, on kirjas `docs/testing/testide-kirjutamise-plaan.md`.
+
+- **Tööriistad** — JUnit 5 + Mockito + AssertJ (`spring-boot-starter-test` kaudu, uusi sõltuvusi pole vaja). Service'i unit test kasutab `@ExtendWith(MockitoExtension.class)`, kõik konstruktori sõltuvused on `@Mock` ja testitav klass `@InjectMocks`. Andmebaasi ega Springi unit test ei käivita.
+- **Asukoht** — `src/test/java/ee/testiplatvorm/...` samas paketis kui testitav klass, nt `service/QuestionServiceTest.java`.
+- **Nimetamine** — testimeetodi nimi on kujul `meetod_olukord_oodatudTulemus`, nt `deleteQuestion_userWithoutPermission_throwsForbiddenException`. Nimest peab olema aru saada, mida test katab, ilma koodi lugemata.
+- **Ülesehitus** — Arrange / Act / Assert kommentaaridega. Exception'i kontrollis on Act ja Assert koos: `assertThatThrownBy(() -> ...).isInstanceOf(...)`. Vea korral kontrolli ka, et midagi ei salvestatud: `verify(repository, never()).save(any())`.
+- **Oodatud käitumine** — testid kirjutatakse oodatud käitumise (taski fail, äri reegel) põhjal, mitte implementatsiooni lugedes. Kui kood käitub reeglist erinevalt, kirjuta kõigepealt punane test, siis paranda kood.
+- **Iga test peab suutma ebaõnnestuda** — pärast testi kirjutamist murra korraks testitavat koodi (nt `== 1` → `>= 1`) ja veendu, et test läheb punaseks.
+- **Mockito range režiim** — kasutamata stub annab `UnnecessaryStubbingException`-i. Stub'i ainult seda, milleni kood antud olukorras jõuab (nt õiguste testis ainult kasutaja ja roll).
+- **Nimekonflikt** — entiteet `ee.testiplatvorm.persistence.test.Test` ja JUniti `@Test` on sama nimega: impordi JUniti oma ja kasuta entiteeti täisnimega.
+- Muutujate nimetamise reeglid kehtivad ka testides (`QuestionCreateRequestDto questionCreateRequestDto`, mitte `dto`).
 
 ### REST API
 
