@@ -104,19 +104,17 @@ export default {
   top: 1.5rem;
   width: 220px;
   padding: 1.25rem 0.75rem;
-  background: #fff;
-  border: 1px solid rgba(26, 26, 46, 0.06);
+  background: var(--bs-body-bg);
+  border: 1px solid var(--app-surface-border);
   border-radius: 1rem;
   overflow: hidden;
-  box-shadow:
-    0 1px 2px rgba(26, 26, 46, 0.04),
-    0 8px 24px rgba(26, 26, 46, 0.08);
+  box-shadow: var(--app-surface-shadow);
 }
 
 /* Aaloe illustratsiooni tumeda kivi värvi päiseriba üle kogu kaardi laiuse (negatiivsed marginid tühistavad .sidebar paddingu) */
 .sidebar-label {
   margin: -1.05rem -0.75rem 0.75rem;
-  background: #37474f;
+  background: var(--app-sidebar-bar);
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -138,7 +136,7 @@ export default {
 /* Kirjutab üle main.css globaalse a:hover rohelise tausta */
 .nav-link:hover {
   background-color: rgba(var(--bs-primary-rgb), 0.06);
-  color: #1a1a2e;
+  color: var(--app-ink);
 }
 
 /* "Küsimuste pank" jääb aktiivseks ka alamlehel /questions/ai */

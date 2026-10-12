@@ -107,7 +107,7 @@ export default {
         </button>
       </div>
       <AlertDanger :error-message="errorMessage" />
-      <div class="card shadow rounded-4">
+      <div class="card app-surface rounded-4">
         <div class="table-responsive">
           <table class="table table-hover align-middle mb-0">
             <thead>

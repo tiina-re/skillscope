@@ -144,7 +144,7 @@ export default {
         Testid
       </button>
 
-      <div class="card shadow p-4 detail-card">
+      <div class="card app-surface p-4 detail-card">
         <div class="card-body">
           <p class="eyebrow text-brand mb-2">{{ test.competence }}</p>
           <div class="d-flex align-items-start gap-3 mb-4">

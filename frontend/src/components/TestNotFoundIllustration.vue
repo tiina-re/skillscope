@@ -1,5 +1,7 @@
 <script>
 import aloeVeraImage from '@/assets/images/aloe-vera-cuate-green.svg'
+// Tumeda režiimi variant: taustamaastiku hallid on tumedale pinnale sobivad, vari tumedam, põrandajoon heledam
+import aloeVeraImageDark from '@/assets/images/aloe-vera-cuate-green-dark.svg'
 
 export default {
   name: 'TestNotFoundIllustration',
@@ -9,6 +11,7 @@ export default {
   data() {
     return {
       aloeVeraImage,
+      aloeVeraImageDark,
     }
   },
 }
@@ -16,7 +19,20 @@ export default {
 
 <template>
   <div class="not-found text-center my-4">
-    <img :src="aloeVeraImage" alt="Aaloe illustratsioon" class="not-found-image mb-3" />
+    <!-- Õige variant valitakse CSS-iga (theme.css .theme-light-only / .theme-dark-only), nii vahetub pilt
+         kohe teemalülitiga. loading="lazy" — peidetud pilti brauser alla ei laadi. -->
+    <img
+      :src="aloeVeraImage"
+      alt="Aaloe illustratsioon"
+      class="not-found-image theme-light-only mb-3"
+      loading="lazy"
+    />
+    <img
+      :src="aloeVeraImageDark"
+      alt="Aaloe illustratsioon"
+      class="not-found-image theme-dark-only mb-3"
+      loading="lazy"
+    />
     <h1 class="h3 fw-semibold mb-2">Testi ei leitud</h1>
     <p class="text-body-secondary mb-0">{{ message }}</p>
   </div>

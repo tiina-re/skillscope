@@ -41,7 +41,7 @@ export default {
 </script>
 
 <template>
-  <div class="card my-4 shadow p-4" style="width: 36rem">
+  <div class="card my-4 app-surface p-4" style="width: 36rem">
     <div class="card-body">
       <div>
         <div class="d-flex justify-content-between">

@@ -66,9 +66,9 @@ class AiQuestionServiceTest {
     @Mock
     private AiQuestionAnswerRepository aiQuestionAnswerRepository;
     @Mock
-    private CurrentUserService currentUserService;
-    @Mock
     private UserRepository userRepository;
+    // Päris CurrentUserService, et rollikontroll (getValidQuestionAuthorId) oleks testitud; stub'itud on ainult sessioon
+    private CurrentUserService currentUserService;
 
     private AiQuestionService aiQuestionService;
 
@@ -82,8 +82,10 @@ class AiQuestionServiceTest {
     @BeforeEach
     void setUp() {
         when(chatClientBuilder.build()).thenReturn(chatClient);
+        currentUserService = spy(new CurrentUserService(null, userRepository));
         aiQuestionService = new AiQuestionService(chatClientBuilder, competenceLevelRepository, questionTypeRepository,
-                questionRepository, aiQuestionRepository, aiQuestionAnswerRepository, currentUserService, userRepository);
+                questionRepository, aiQuestionRepository, aiQuestionAnswerRepository, currentUserService,
+                new AiQuestionValidationService());
 
         Competence competence = new Competence();
         competence.setName("Java");
@@ -109,7 +111,7 @@ class AiQuestionServiceTest {
         role.setName(roleName);
         User user = new User();
         user.setRole(role);
-        when(currentUserService.getUserId()).thenReturn(USER_ID);
+        doReturn(USER_ID).when(currentUserService).getUserId();
         when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
     }
 
@@ -304,14 +306,14 @@ class AiQuestionServiceTest {
     }
 
     @Test
-    void generateQuestions_allQuestionsInvalid_throwsIllegalStateException() {
+    void generateQuestions_allQuestionsInvalid_throwsBadRequestException() {
         mockCurrentUserWithRole("ADMIN");
         mockAvailableLevelsAndTypes();
         mockAiSelectsAndGenerates(singleChoice, 1,
                 question("Vihjega", "Vali õige vastus.", answer("Java ✓", true), answer("Python", false)));
 
         assertThatThrownBy(() -> aiQuestionService.generateQuestions(askRequest("Loo Java küsimus")))
-                .isInstanceOf(IllegalStateException.class);
+                .isInstanceOf(BadRequestException.class);
     }
 
     @Test

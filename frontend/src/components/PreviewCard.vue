@@ -11,7 +11,7 @@ export default {
 </script>
 
 <template>
-  <div class="card preview-card shadow rounded-4">
+  <div class="card preview-card app-surface rounded-4">
     <div class="card-body d-flex flex-column">
       <div class="d-flex align-items-start gap-4 mt-1 mb-3">
         <h4 class="card-title flex-grow-1 mb-0">
@@ -50,7 +50,7 @@ export default {
 
 .preview-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  box-shadow: var(--app-surface-shadow-hover);
 }
 
 .card-title,
@@ -76,6 +76,6 @@ export default {
   --bs-dropdown-min-width: 10rem;
   --bs-dropdown-bg: var(--bs-gray-100);
   --bs-dropdown-border-radius: 0.75rem;
-  --bs-dropdown-link-color: var(--bs-black);
+  --bs-dropdown-link-color: var(--bs-emphasis-color);
 }
 </style>

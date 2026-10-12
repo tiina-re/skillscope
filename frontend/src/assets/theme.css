@@ -37,6 +37,115 @@
   --brand-green-rgb: 31, 138, 76;
   --brand-slate: #37474f;
   --brand-mint: #92e3a9;
+
+  /* Rakenduse enda pinnad ja toonid — tumeda režiimi väärtused on allpool */
+  --app-page-bg: #f5f8f6;
+  --app-page-glow: rgba(199, 217, 199, 0.22);
+  --app-page-glow-2: transparent;
+  --app-dot-color: rgba(55, 71, 79, 0.08);
+  --app-dot-wave-color: rgba(55, 71, 79, 0.14);
+  --app-ink: #1a1a2e;
+  --app-nav-border: #eee;
+  --app-nav-arc-bg: #e4ede7;
+  --app-nav-arc-dot: rgba(55, 71, 79, 0.12);
+  --app-sidebar-bar: var(--brand-slate);
+  /* Pinna vari ja piir (külgmenüü eeskujul) — kõik kaardid ja paneelid kasutavad neid, vt .app-surface */
+  --app-surface-border: rgba(26, 26, 46, 0.06);
+  --app-surface-shadow: 0 1px 2px rgba(26, 26, 46, 0.04), 0 8px 24px rgba(26, 26, 46, 0.08);
+  --app-surface-shadow-hover: 0 2px 4px rgba(26, 26, 46, 0.05), 0 12px 32px rgba(26, 26, 46, 0.12);
+  --app-result-header-bg: linear-gradient(160deg, #eceff1 0%, #f8fafb 100%);
+  --app-ring-track: #eceff1;
+}
+
+/*
+  Tume režiim — lülitatakse <html data-bs-theme="dark"> atribuudiga (vt ThemeService.js).
+  "Mõõtekoda öösel": mitte kustutatud tuled, vaid süvaroheka-sinakashalli toonitud pinnad (OKLCH toon ~195),
+  mille kohal helendavad teraskiltkivi (primary, toon ~220), aaloe-roheline ja mündi täpivõrk.
+  Pinnad astmeliselt heledamad: leht #101d1d → kaart #1b2a29 → tõstetud #233434.
+  Kõik :root-is üle kirjutatud Bootstrapi muutujad tuleb siin uuesti määrata, muidu jääksid heledad.
+  Kontrastid (WCAG AA): tekst kaardil 11.8:1, vaiksem tekst (gray-600) 6:1, primary-tekst 8.2:1,
+  valge tekst primary-nupul 5.8:1 (hover 5.1:1).
+*/
+:root[data-bs-theme='dark'] {
+  --bs-body-bg: #1b2a29;
+  --bs-body-bg-rgb: 27, 42, 41;
+  --bs-body-color: #dce7e7;
+  --bs-body-color-rgb: 220, 231, 231;
+  --bs-emphasis-color: #f2f8f8;
+  --bs-emphasis-color-rgb: 242, 248, 248;
+  --bs-secondary-color: rgba(220, 231, 231, 0.7);
+  --bs-secondary-color-rgb: 220, 231, 231;
+  --bs-secondary-bg: #233434;
+  --bs-secondary-bg-rgb: 35, 52, 52;
+  --bs-tertiary-bg: #1f2f2f;
+  --bs-tertiary-bg-rgb: 31, 47, 47;
+  --bs-border-color: #314444;
+  --bs-border-color-translucent: rgba(220, 240, 238, 0.1);
+
+  /* Halliskaala pööratakse ümber: komponentides kasutatud --bs-gray-100 (hele täide) jääb ka
+     tumedas režiimis "pehmeks täiteks" ja --bs-gray-600 (vaiksem tekst) loetavaks.
+     Hallid on samas rohekas-sinakas toonis nagu pinnad, mitte neutraalsed. */
+  --bs-gray-100: #213131;
+  --bs-gray-200: #283939;
+  --bs-gray-300: #354646;
+  --bs-gray-400: #4c5c5b;
+  --bs-gray-500: #778786;
+  --bs-gray-600: #9aa8a7;
+  --bs-gray-700: #bcc7c6;
+  --bs-gray-800: #d4dddd;
+  --bs-gray-900: #e8eeee;
+
+  /* Primary: teraskiltkivi — sama toon mis heleda režiimi #37474f, aga küllastunum, et pimedas helendaks */
+  --bs-primary: #84cbdc;
+  --bs-primary-rgb: 132, 203, 220;
+  --bs-primary-text-emphasis: #bde6f1;
+  --bs-primary-bg-subtle: #173d45;
+  --bs-primary-border-subtle: #2b616d;
+
+  --bs-link-color: #84d3e1;
+  --bs-link-color-rgb: 132, 211, 225;
+  --bs-link-hover-color: #bcebf4;
+  --bs-link-hover-color-rgb: 188, 235, 244;
+  --bs-focus-ring-color: rgba(132, 203, 220, 0.35);
+
+  --bs-success: #34d1a8;
+  --bs-success-rgb: 52, 209, 168;
+  --bs-success-text-emphasis: #86e8cd;
+  --bs-success-bg-subtle: #123a31;
+  --bs-success-border-subtle: #23705c;
+  --bs-form-valid-color: #34d1a8;
+  --bs-form-valid-border-color: #34d1a8;
+
+  /* Kollane (AI märgid, "pooleli" staatus, tärnid) — soe ja summutatud, mitte neoonkollane */
+  --bs-warning: #f0c454;
+  --bs-warning-rgb: 240, 196, 84;
+  --bs-warning-text-emphasis: #f3d27c;
+  --bs-warning-bg-subtle: #3a3222;
+  --bs-warning-border-subtle: #7d6530;
+
+  --brand-green: #4cc47f;
+  --brand-green-rgb: 76, 196, 127;
+  /* Tumedas režiimis on --brand-slate ainult TAUSTAVÄRV valge teksti all (chati mullid, päised, tulemusring).
+     Tekstina kasutatakse --bs-primary-t. */
+  --brand-slate: #186e86;
+
+  /* Kaks kuma: aaloe-roheline paremal üleval, teraskiltkivi vasakul all — leht ei ole ühtlaselt pime */
+  --app-page-bg: #101d1d;
+  --app-page-glow: rgba(76, 196, 127, 0.06);
+  --app-page-glow-2: rgba(24, 110, 134, 0.16);
+  --app-dot-color: rgba(146, 227, 169, 0.07);
+  --app-dot-wave-color: rgba(146, 227, 169, 0.22);
+  --app-ink: #f2f8f8;
+  --app-nav-border: #2a3b3b;
+  --app-nav-arc-bg: #163226;
+  --app-nav-arc-dot: rgba(146, 227, 169, 0.12);
+  --app-sidebar-bar: linear-gradient(90deg, var(--brand-green), #34d1a8 55%, #84cbdc);
+  --app-surface-border: rgba(220, 240, 238, 0.07);
+  --app-surface-shadow: 0 1px 2px rgba(0, 0, 0, 0.25), 0 8px 24px rgba(0, 0, 0, 0.3);
+  --app-surface-shadow-hover:
+    0 2px 4px rgba(0, 0, 0, 0.28), 0 12px 32px rgba(0, 0, 0, 0.38), 0 0 0 1px rgba(132, 203, 220, 0.18);
+  --app-result-header-bg: linear-gradient(160deg, #183e46 0%, #163032 100%);
+  --app-ring-track: #283939;
 }
 
 /* Brändi roheline pealkirjadele ja aktsentidele */
@@ -114,14 +223,70 @@
    ja täpivõrk. 57px = navbari kõrgus. */
 .layout {
   min-height: calc(100vh - 57px);
-  background-color: #f5f8f6;
+  background-color: var(--app-page-bg);
   background-image:
-    radial-gradient(circle at 100% 0%, rgba(199, 217, 199, 0.22), transparent 45%),
-    radial-gradient(rgba(55, 71, 79, 0.08) 1px, transparent 1px);
+    radial-gradient(circle at 100% 0%, var(--app-page-glow), transparent 45%),
+    radial-gradient(circle at 0% 100%, var(--app-page-glow-2), transparent 50%),
+    radial-gradient(var(--app-dot-color) 1px, transparent 1px);
   background-size:
+    100% 100%,
     100% 100%,
     22px 22px;
   background-attachment: fixed;
+}
+
+/* Täpilaine — ühine kiht lehe taustale (DotWaveBackground.vue) ja navbari kaarele (AppNavbar.vue).
+   Lehe täpivõrgu kohal on samas 22px rütmis suuremad ja tumedamad täpid, mida näidatakse ainult
+   kitsa diagonaalse riba kaudu (mask). Riba liigub ~6 sekundiga vasakult paremale üle ekraani ja
+   seisab ülejäänud tsükli ekraanist väljas.
+   Maski suurus on vaateakna ühikutes (300vw × 100vh) ja täpid on fixed-kinnitusega, et mõlemad kihid
+   joonistaksid täpselt sama laine samas kohas — navbari kaar on vaateakna vasakus ülanurgas nagu lehe kiht.
+   Mõlemad kihid peavad alustama animatsiooni samal hetkel (vt MainLayout.vue isDotWaveShown). */
+.app-dot-wave-layer {
+  pointer-events: none;
+  background-image: radial-gradient(var(--app-dot-wave-color) 2px, transparent 2.6px);
+  background-size: 22px 22px;
+  background-attachment: fixed;
+  -webkit-mask-image: linear-gradient(110deg, transparent 40%, #000 50%, transparent 60%);
+  mask-image: linear-gradient(110deg, transparent 40%, #000 50%, transparent 60%);
+  -webkit-mask-size: 300vw 100vh;
+  mask-size: 300vw 100vh;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: -200vw 0;
+  mask-position: -200vw 0;
+  /* Esimene laine 8 s pärast lehe avamist, seejärel iga 15 s järel */
+  animation: app-dot-wave 15s ease-in-out 8s infinite;
+}
+
+/* -200vw → riba on ekraanist vasakul, 0 → paremal. 40% 15 sekundist = 6 s üle ekraani */
+@keyframes app-dot-wave {
+  0% {
+    -webkit-mask-position: -200vw 0;
+    mask-position: -200vw 0;
+  }
+  40% {
+    -webkit-mask-position: 0 0;
+    mask-position: 0 0;
+  }
+  100% {
+    -webkit-mask-position: 0 0;
+    mask-position: 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-dot-wave-layer {
+    display: none;
+  }
+}
+
+/* Pehmelt tõstetud pind (kaardid, paneelid): kahekihiline tindiga toonitud vari + peaaegu nähtamatu piir.
+   Bootstrapi .shadow asemel — see on raskem ja puhtalt must. Klikitav kaart vahetab hoveril
+   varju --app-surface-shadow-hover vastu. */
+.app-surface {
+  border: var(--bs-border-width) solid var(--app-surface-border);
+  box-shadow: var(--app-surface-shadow);
 }
 
 /* Staatuse märgid (vt Status.js) — värvid tulevad Bootstrapi success/warning/danger muutujatest */
@@ -188,4 +353,115 @@
 .form-check-input:checked {
   background-color: #37474f;
   border-color: #37474f;
+}
+
+/* ---------- Tume režiim: komponendid, mille värvid on Bootstrapis või ülal kõvasti kirjas ---------- */
+
+[data-bs-theme='dark'] .btn-primary {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: #186e86;
+  --bs-btn-border-color: #186e86;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: #1d7892;
+  --bs-btn-hover-border-color: #1d7892;
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: #145d71;
+  --bs-btn-active-border-color: #145d71;
+  --bs-btn-disabled-color: #fff;
+  --bs-btn-disabled-bg: #186e86;
+  --bs-btn-disabled-border-color: #186e86;
+  --bs-btn-focus-shadow-rgb: 132, 203, 220;
+}
+
+[data-bs-theme='dark'] .btn-outline-primary {
+  --bs-btn-color: #84cbdc;
+  --bs-btn-border-color: #5e9daf;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: #186e86;
+  --bs-btn-hover-border-color: #186e86;
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: #145d71;
+  --bs-btn-active-border-color: #145d71;
+  --bs-btn-disabled-color: #5e9daf;
+  --bs-btn-disabled-border-color: #5e9daf;
+  --bs-btn-focus-shadow-rgb: 132, 203, 220;
+}
+
+[data-bs-theme='dark'] .btn-outline-success {
+  --bs-btn-color: #34d1a8;
+  --bs-btn-border-color: #34d1a8;
+  --bs-btn-hover-color: #0c2420;
+  --bs-btn-hover-bg: #34d1a8;
+  --bs-btn-hover-border-color: #34d1a8;
+  --bs-btn-active-color: #0c2420;
+  --bs-btn-active-bg: #2bb892;
+  --bs-btn-active-border-color: #2bb892;
+  --bs-btn-disabled-color: #34d1a8;
+  --bs-btn-disabled-border-color: #34d1a8;
+  --bs-btn-focus-shadow-rgb: 52, 209, 168;
+}
+
+/* Pehme sekundaarne nupp: pindadest veidi heledam ja sinakam täide */
+[data-bs-theme='dark'] .btn-light {
+  --bs-btn-color: #dce7e7;
+  --bs-btn-bg: #293d40;
+  --bs-btn-border-color: #293d40;
+  --bs-btn-hover-color: #f2f8f8;
+  --bs-btn-hover-bg: #334a4c;
+  --bs-btn-hover-border-color: #334a4c;
+  --bs-btn-active-color: #f2f8f8;
+  --bs-btn-active-bg: #3e5659;
+  --bs-btn-active-border-color: #3e5659;
+  --bs-btn-disabled-color: #717d7e;
+  --bs-btn-disabled-bg: #233132;
+  --bs-btn-disabled-border-color: #233132;
+  --bs-btn-focus-shadow-rgb: 132, 203, 220;
+}
+
+[data-bs-theme='dark'] .dropdown-menu {
+  --bs-dropdown-link-hover-bg: #2e4447;
+  --bs-dropdown-link-hover-color: #f2f8f8;
+  --bs-dropdown-link-active-bg: #186e86;
+  --bs-dropdown-link-active-color: #fff;
+}
+
+[data-bs-theme='dark'] .nav-pills {
+  --bs-nav-pills-link-active-bg: #186e86;
+}
+
+[data-bs-theme='dark'] .form-control:focus,
+[data-bs-theme='dark'] .form-select:focus,
+[data-bs-theme='dark'] .form-check-input:focus {
+  border-color: #5e9daf;
+  box-shadow: 0 0 0 0.25rem rgba(132, 203, 220, 0.3);
+}
+
+/* Teraskiltkivi, mitte roheline — valitud vastus ei tohi mõjuda "õige vastusena" */
+[data-bs-theme='dark'] .form-check-input:checked {
+  background-color: #3d92ad;
+  border-color: #3d92ad;
+}
+
+/* Teemapõhised pildivariandid (nt aaloe illustratsioon): .theme-light-only ainult heledas,
+   .theme-dark-only ainult tumedas režiimis */
+.theme-dark-only {
+  display: none !important;
+}
+
+[data-bs-theme='dark'] .theme-dark-only {
+  display: revert !important;
+}
+
+[data-bs-theme='dark'] .theme-light-only {
+  display: none !important;
+}
+
+/* Bootstrapi .text-bg-light jääb tumedas režiimis heledaks — muudame selle pehmeks halliks märgiks */
+[data-bs-theme='dark'] .text-bg-light {
+  background-color: var(--bs-secondary-bg) !important;
+  color: var(--bs-body-color) !important;
+}
+
+[data-bs-theme='dark'] .app-tooltip {
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.4);
 }
