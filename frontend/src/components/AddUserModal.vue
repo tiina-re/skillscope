@@ -215,8 +215,8 @@ export default {
 }
 
 .group-option.selected {
-  border-color: var(--bs-blue);
-  background-color: var(--bs-gray-200);
-  color: var(--bs-blue);
+  border-color: var(--bs-primary);
+  background-color: var(--bs-primary-bg-subtle);
+  color: var(--bs-primary-text-emphasis);
 }
 </style>

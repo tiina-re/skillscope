@@ -1,6 +1,7 @@
 <script>
 import AiQuestionService from '@/services/AiQuestionService.js'
 import LoadingText from '@/components/LoadingText.vue'
+import MainTitle from '@/components/MainTitle.vue'
 import QuestionBankTabs from '@/components/QuestionBankTabs.vue'
 import QuestionBankCard from '@/components/QuestionBankCard.vue'
 import QuestionAnswerOption from '@/components/QuestionAnswerOption.vue'
@@ -14,6 +15,7 @@ export default {
   name: 'AiQuestionBankView',
   components: {
     LoadingText,
+    MainTitle,
     QuestionBankTabs,
     QuestionBankCard,
     QuestionAnswerOption,
@@ -144,11 +146,10 @@ export default {
 </script>
 
 <template>
-  <div class="container-fluid py-4">
+  <div class="container py-4">
     <LoadingText v-if="isLoading" />
-    <div v-else class="question-bank-content mx-auto">
-      <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
-        <h1 class="text-uppercase fw-bold h3 mb-0">Küsimuste pank</h1>
+    <div v-else class="question-bank-content">
+      <MainTitle title="Küsimuste pank">
         <div class="dropdown">
           <button
             class="btn btn-light border fw-bold rounded-2 d-flex align-items-center gap-2"
@@ -180,7 +181,7 @@ export default {
             </li>
           </ul>
         </div>
-      </div>
+      </MainTitle>
 
       <QuestionBankTabs ref="questionBankTabs" />
 
@@ -192,7 +193,7 @@ export default {
         </p>
       </div>
 
-      <div class="d-flex flex-column gap-4">
+      <div class="d-flex flex-column gap-3">
         <QuestionBankCard
           v-for="aiQuestion in aiQuestions"
           :key="aiQuestion.aiQuestionId"
@@ -308,12 +309,6 @@ export default {
 </template>
 
 <style scoped>
-@media (min-width: 992px) {
-  .question-bank-content {
-    width: 70%;
-  }
-}
-
 .review-summary {
   background-color: var(--bs-gray-100);
 }

@@ -141,6 +141,12 @@ export default {
           <div class="d-flex flex-wrap align-items-center justify-content-center gap-5 flex-grow-1">
             <div class="donut position-relative">
               <svg viewBox="0 0 42 42" class="d-block w-100 h-100" aria-hidden="true">
+                <defs>
+                  <linearGradient id="donut-passed-gradient" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" class="gradient-start" />
+                    <stop offset="100%" class="gradient-end" />
+                  </linearGradient>
+                </defs>
                 <circle class="donut-failed" cx="21" cy="21" r="15.9" pathLength="100" />
                 <circle
                   class="donut-passed"
@@ -254,11 +260,19 @@ export default {
   stroke-width: 4;
 }
 
-/* Kaar algab kella 12 pealt */
+/* Kaar algab kella 12 pealt. Sama gradient nagu kompetentside tulpadel (CompetenceScoreBars) */
 .donut-passed {
-  stroke: var(--bs-success);
+  stroke: url(#donut-passed-gradient);
   stroke-dashoffset: 25;
   stroke-linecap: round;
+}
+
+.gradient-start {
+  stop-color: var(--bs-primary);
+}
+
+.gradient-end {
+  stop-color: var(--bs-success);
 }
 
 .donut-failed {
@@ -276,7 +290,7 @@ export default {
 }
 
 .legend-passed {
-  background-color: var(--bs-success);
+  background: linear-gradient(135deg, var(--bs-primary), var(--bs-success));
 }
 
 .legend-failed {

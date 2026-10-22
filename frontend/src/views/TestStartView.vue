@@ -70,10 +70,10 @@ export default {
     <div v-else class="card my-4 app-surface p-4 start-card">
       <div class="card-body">
         <p class="eyebrow text-brand mb-2">{{ test.competence }}</p>
-        <h1 class="text-uppercase fw-bold h3">{{ test.title }}</h1>
+        <h1 class="fw-bold h3">{{ test.title }}</h1>
 
         <div class="d-flex flex-wrap gap-2 mb-4">
-          <span class="badge rounded-pill text-bg-light border">
+          <span class="badge rounded-pill badge-neutral">
             {{ test.competenceLevel }}
           </span>
         </div>
@@ -115,7 +115,7 @@ export default {
 <style scoped>
 .start-card {
   width: 100%;
-  max-width: 36rem;
+  max-width: 48rem;
   border: none;
   border-radius: 1rem;
 }
@@ -139,10 +139,5 @@ export default {
 
 .info-box {
   background-color: rgba(var(--bs-primary-rgb), 0.06);
-}
-
-.badge {
-  font-weight: 500;
-  padding: 0.45em 0.9em;
 }
 </style>

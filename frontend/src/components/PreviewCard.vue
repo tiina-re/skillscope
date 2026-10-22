@@ -12,7 +12,7 @@ export default {
 
 <template>
   <div class="card preview-card app-surface rounded-4">
-    <div class="card-body d-flex flex-column">
+    <div class="card-body d-flex flex-column p-4">
       <div class="d-flex align-items-start gap-4 mt-1 mb-3">
         <h4 class="card-title flex-grow-1 mb-0">
           <slot name="title"></slot>

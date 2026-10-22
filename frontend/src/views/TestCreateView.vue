@@ -173,7 +173,7 @@ export default {
   <div class="container d-flex flex-column align-items-center">
     <div class="card app-surface p-4 my-4 create-card">
       <div class="card-body">
-        <h1 class="text-uppercase fw-bold h3">Loo uus test</h1>
+        <h1 class="fw-bold h3">Loo uus test</h1>
         <p class="text-body-secondary mt-3 mb-4">
           Pane kokku test, mis aitab kasutajatel oma oskusi proovile panna. Vali kompetents ja tase,
           lisa küsimused ning määra, kui palju on vaja testi läbimiseks õigesti vastata. Kõik väljad

@@ -8,7 +8,7 @@ import {
   PhHouse,
   PhListChecks,
   PhPlant,
-  PhSkull,
+  PhLeaf,
   PhTarget,
   PhTrophy,
 } from '@phosphor-icons/vue'
@@ -26,7 +26,7 @@ export default {
     LoadingText,
     PhTrophy,
     PhPlant,
-    PhSkull,
+    PhLeaf,
     PhTarget,
     PhListChecks,
     PhClock,
@@ -167,22 +167,29 @@ export default {
 
     <TestNotFoundIllustration v-else-if="errorMessage.length" :message="errorMessage" />
 
-    <div v-else class="card my-4 app-surface result-card" :class="isPassed ? 'is-passed' : 'is-failed'">
-      <div class="result-header text-center px-4 pt-4 pb-5">
+    <div
+      v-else
+      class="card my-4 app-surface result-card"
+      :class="isPassed ? 'is-passed' : 'is-failed'"
+    >
+      <div class="result-header text-center px-4 pt-4">
         <div class="header-icon mx-auto mb-3">
           <PhTrophy v-if="isPassed" :size="32" weight="fill" />
-          <PhSkull v-else-if="isLowScore" :size="32" weight="fill" />
+          <PhLeaf v-else-if="isLowScore" :size="32" weight="fill" class="text-success" />
           <PhPlant v-else :size="32" weight="fill" class="text-success" />
         </div>
         <p class="eyebrow mb-1">Testi tulemus</p>
         <h1 class="h3 fw-bold mb-1">
-          <span v-if="isPassed">Palju õnne! Test on sooritatud</span>
-          <span v-else>Seekord ei õnnestunud</span>
+          <span v-if="isPassed">Palju õnne, test on sooritatud!</span>
+          <span v-else-if="isLowScore">Esimene samm on tehtud</span>
+          <span v-else>Hea katse!</span>
         </h1>
         <p class="mb-0 header-subtitle">
-          <span v-if="isPassed">Suurepärane töö — sinu vastused on salvestatud.</span>
-          <span v-else-if="isLowScore">Mine koju ära 🙂</span>
-          <span v-else>Sinu vastused on salvestatud. Iga katse viib sind sammu edasi!</span>
+          <span v-if="isPassed">Suurepärane töö — said sellega hiilgavalt hakkama! 🎉</span>
+          <span v-else-if="isLowScore"
+            >Kõik suured asjad algavad nullist. Sina oled nüüd ametlikult alguses! 🚀</span
+          >
+          <span v-else>Osa on juba selge — veel üks katse ja oled kohal! 💪</span>
         </p>
       </div>
 
@@ -194,7 +201,7 @@ export default {
             <span class="score-value">{{ scorePercentage }}%</span>
             <span
               class="badge rounded-pill mt-1"
-              :class="isPassed ? 'badge-active' : 'badge-inactive'"
+              :class="isPassed ? 'badge-completed' : 'badge-inactive'"
             >
               {{ isPassed ? 'Sooritatud' : 'Sooritamata' }}
             </span>
@@ -233,7 +240,7 @@ export default {
 
         <button
           @click="goToTestsView"
-          class="btn btn-lg w-100 d-flex align-items-center justify-content-center gap-2"
+          class="btn fw-bold py-2 w-100 d-flex align-items-center justify-content-center gap-2"
           :class="isPassed ? 'btn-success' : 'btn-primary'"
         >
           <PhHouse :size="20" weight="fill" />
@@ -249,7 +256,7 @@ export default {
   --result-accent: var(--bs-primary);
   --result-accent-rgb: var(--bs-primary-rgb);
   width: 100%;
-  max-width: 36rem;
+  max-width: 48rem;
   border: none;
   border-radius: 1rem;
   overflow: hidden;
@@ -262,6 +269,8 @@ export default {
 
 /* Päis: eduka sooritamise korral rõõmsam münt-türkiis üleminek, muidu rahulik hall */
 .result-header {
+  /* Ring (score-ring) tõuseb 3rem päise sisse — 5rem jätab alapealkirja ja ringi vahele 2rem */
+  padding-bottom: 5rem;
   background: var(--app-result-header-bg);
   color: var(--bs-primary-text-emphasis);
 }
@@ -362,11 +371,6 @@ export default {
   font-weight: 700;
   line-height: 1;
   color: var(--result-accent);
-}
-
-.badge {
-  font-weight: 500;
-  padding: 0.35em 0.8em;
 }
 
 .stat-box {

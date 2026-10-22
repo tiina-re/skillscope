@@ -85,25 +85,7 @@ export default {
 <style scoped>
 .preview-test-card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(450px, 100%), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(22rem, 100%), 1fr));
   gap: 1rem;
-}
-
-@media (min-width: 1800px) {
-  .container {
-    max-width: 1760px;
-  }
-}
-
-@media (min-width: 2400px) {
-  .container {
-    max-width: 2340px;
-  }
-}
-
-@media (min-width: 3000px) {
-  .container {
-    max-width: 2900px;
-  }
 }
 </style>

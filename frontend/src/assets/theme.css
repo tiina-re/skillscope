@@ -12,17 +12,28 @@
 */
 
 :root {
-  --bs-primary: #37474f;
-  --bs-primary-rgb: 55, 71, 79;
-  --bs-primary-text-emphasis: #1c262b;
-  --bs-primary-bg-subtle: #eceff1;
-  --bs-primary-border-subtle: #b0bec5;
+  /* Fondid (index.html laeb Google Fontsist): sisu Inter, pealkirjad Plus Jakarta Sans */
+  --bs-body-font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --app-heading-font-family: 'Plus Jakarta Sans', var(--bs-body-font-family);
 
-  --bs-link-color: #37474f;
-  --bs-link-color-rgb: 55, 71, 79;
-  --bs-link-hover-color: #1c262b;
-  --bs-link-hover-color-rgb: 28, 38, 43;
-  --bs-focus-ring-color: rgba(55, 71, 79, 0.25);
+  /* Primary: logo roheline — sama aktsent mõlemas teemas.
+     #1a7a43 (logo #1f8a4c veidi tumedam), et valge tekst nupul vastaks WCAG AA-le */
+  --bs-primary: #1a7a43;
+  --bs-primary-rgb: 26, 122, 67;
+  --bs-primary-text-emphasis: #14532d;
+  --bs-primary-bg-subtle: #dcf3e4;
+  --bs-primary-border-subtle: #9fdcb4;
+
+  --bs-link-color: #1a7a43;
+  --bs-link-color-rgb: 26, 122, 67;
+  --bs-link-hover-color: #14532d;
+  --bs-link-hover-color-rgb: 20, 83, 45;
+  --bs-focus-ring-color: rgba(26, 122, 67, 0.25);
+
+  /* Neutraalne valikuvärv (testi ajal valitud vastus, märkeruut) — mitte primary, sest roheline
+     mõjuks seal "õige vastusena" */
+  --app-selection: #37474f;
+  --app-selection-rgb: 55, 71, 79;
 
   /* Success — külmem sinakasroheline, et eristuks brändi soojadest rohelistest */
   --bs-success: #00b894;
@@ -35,25 +46,34 @@
 
   --brand-green: #1f8a4c;
   --brand-green-rgb: 31, 138, 76;
-  --brand-slate: #37474f;
+  /* Taustavärv valge teksti all (chati mullid, AI generaatori päis, tulemusring) — primary toon */
+  --brand-slate: #1a7a43;
   --brand-mint: #92e3a9;
+  --app-badge-active-bg: #e8f7ee;
+  --app-badge-active-color: #2f7350;
+  --app-badge-active-border: #bfe7cf;
+  --app-badge-competence-bg: #e8eff7;
+  --app-badge-competence-color: #2f5175;
+  --app-badge-competence-border: #bfd2e6;
 
   /* Rakenduse enda pinnad ja toonid — tumeda režiimi väärtused on allpool */
   --app-page-bg: #f5f8f6;
-  --app-page-glow: rgba(199, 217, 199, 0.22);
-  --app-page-glow-2: transparent;
+  /* Kaks ühesugust mündikuma (paremal üleval, vasakul all). Heledal taustal on vaja tugevamat
+     kuma, et see üldse näha oleks — tumedas režiimis on sama värv poole nõrgem (vt allpool) */
+  --app-page-glow: rgba(146, 227, 169, 0.3);
   --app-dot-color: rgba(55, 71, 79, 0.08);
-  --app-dot-wave-color: rgba(55, 71, 79, 0.14);
+  --app-dot-wave-color: rgba(55, 71, 79, 0.09);
   --app-ink: #1a1a2e;
   --app-nav-border: #eee;
   --app-nav-arc-bg: #e4ede7;
   --app-nav-arc-dot: rgba(55, 71, 79, 0.12);
-  --app-sidebar-bar: var(--brand-slate);
+  /* Menüü ülemine riba — sama gradient mõlemas teemas (värvid tulevad teema muutujatest) */
+  --app-sidebar-bar: linear-gradient(90deg, var(--brand-green), var(--brand-mint));
   /* Pinna vari ja piir (külgmenüü eeskujul) — kõik kaardid ja paneelid kasutavad neid, vt .app-surface */
   --app-surface-border: rgba(26, 26, 46, 0.06);
   --app-surface-shadow: 0 1px 2px rgba(26, 26, 46, 0.04), 0 8px 24px rgba(26, 26, 46, 0.08);
   --app-surface-shadow-hover: 0 2px 4px rgba(26, 26, 46, 0.05), 0 12px 32px rgba(26, 26, 46, 0.12);
-  --app-result-header-bg: linear-gradient(160deg, #eceff1 0%, #f8fafb 100%);
+  --app-result-header-bg: linear-gradient(160deg, #dcf3e4 0%, #f4fbf6 100%);
   --app-ring-track: #eceff1;
 }
 
@@ -61,7 +81,7 @@
   Tume režiim — lülitatakse <html data-bs-theme="dark"> atribuudiga (vt ThemeService.js).
   "Mõõtekoda öösel": mitte kustutatud tuled, vaid süvaroheka-sinakashalli toonitud pinnad (OKLCH toon ~195),
   mille kohal helendavad teraskiltkivi (primary, toon ~220), aaloe-roheline ja mündi täpivõrk.
-  Pinnad astmeliselt heledamad: leht #101d1d → kaart #1b2a29 → tõstetud #233434.
+  Pinnad astmeliselt heledamad: leht #121819 → kaart #1b2a29 → tõstetud #233434.
   Kõik :root-is üle kirjutatud Bootstrapi muutujad tuleb siin uuesti määrata, muidu jääksid heledad.
   Kontrastid (WCAG AA): tekst kaardil 11.8:1, vaiksem tekst (gray-600) 6:1, primary-tekst 8.2:1,
   valge tekst primary-nupul 5.8:1 (hover 5.1:1).
@@ -95,18 +115,22 @@
   --bs-gray-800: #d4dddd;
   --bs-gray-900: #e8eeee;
 
-  /* Primary: teraskiltkivi — sama toon mis heleda režiimi #37474f, aga küllastunum, et pimedas helendaks */
-  --bs-primary: #84cbdc;
-  --bs-primary-rgb: 132, 203, 220;
-  --bs-primary-text-emphasis: #bde6f1;
-  --bs-primary-bg-subtle: #173d45;
-  --bs-primary-border-subtle: #2b616d;
+  /* Primary: logo roheline (#4cc47f), pimedas helendav; nuppudel tumedam #1a7a43 valge tekstiga */
+  --bs-primary: #4cc47f;
+  --bs-primary-rgb: 76, 196, 127;
+  --bs-primary-text-emphasis: #a7ecc0;
+  --bs-primary-bg-subtle: #133a26;
+  --bs-primary-border-subtle: #23683f;
 
-  --bs-link-color: #84d3e1;
-  --bs-link-color-rgb: 132, 211, 225;
-  --bs-link-hover-color: #bcebf4;
-  --bs-link-hover-color-rgb: 188, 235, 244;
-  --bs-focus-ring-color: rgba(132, 203, 220, 0.35);
+  --bs-link-color: #6fd69a;
+  --bs-link-color-rgb: 111, 214, 154;
+  --bs-link-hover-color: #a7ecc0;
+  --bs-link-hover-color-rgb: 167, 236, 192;
+  --bs-focus-ring-color: rgba(76, 196, 127, 0.35);
+
+  /* Valikuvärv: teraskiltkivi, mitte roheline (vt :root) */
+  --app-selection: #3d92ad;
+  --app-selection-rgb: 61, 146, 173;
 
   --bs-success: #34d1a8;
   --bs-success-rgb: 52, 209, 168;
@@ -127,25 +151,47 @@
   --brand-green-rgb: 76, 196, 127;
   /* Tumedas režiimis on --brand-slate ainult TAUSTAVÄRV valge teksti all (chati mullid, päised, tulemusring).
      Tekstina kasutatakse --bs-primary-t. */
-  --brand-slate: #186e86;
+  --brand-slate: #1a7a43;
 
-  /* Kaks kuma: aaloe-roheline paremal üleval, teraskiltkivi vasakul all — leht ei ole ühtlaselt pime */
-  --app-page-bg: #101d1d;
-  --app-page-glow: rgba(76, 196, 127, 0.06);
-  --app-page-glow-2: rgba(24, 110, 134, 0.16);
-  --app-dot-color: rgba(146, 227, 169, 0.07);
-  --app-dot-wave-color: rgba(146, 227, 169, 0.22);
+  /* Kumade vaheline taust ja täpivõrk on peaaegu neutraalsed, et roheline jääks ainult nurkadesse */
+  --app-page-bg: #121819;
+  --app-page-glow: rgba(146, 227, 169, 0.07);
+  --app-badge-active-bg: #1b3328;
+  --app-badge-active-color: #a3e0bb;
+  --app-badge-active-border: #2f5a43;
+  --app-badge-competence-bg: #1c2735;
+  --app-badge-competence-color: #a9c3df;
+  --app-badge-competence-border: #354b63;
+  --app-dot-color: rgba(220, 231, 231, 0.05);
+  --app-dot-wave-color: rgba(220, 231, 231, 0.12);
   --app-ink: #f2f8f8;
   --app-nav-border: #2a3b3b;
   --app-nav-arc-bg: #163226;
   --app-nav-arc-dot: rgba(146, 227, 169, 0.12);
-  --app-sidebar-bar: linear-gradient(90deg, var(--brand-green), #34d1a8 55%, #84cbdc);
   --app-surface-border: rgba(220, 240, 238, 0.07);
   --app-surface-shadow: 0 1px 2px rgba(0, 0, 0, 0.25), 0 8px 24px rgba(0, 0, 0, 0.3);
   --app-surface-shadow-hover:
-    0 2px 4px rgba(0, 0, 0, 0.28), 0 12px 32px rgba(0, 0, 0, 0.38), 0 0 0 1px rgba(132, 203, 220, 0.18);
-  --app-result-header-bg: linear-gradient(160deg, #183e46 0%, #163032 100%);
+    0 2px 4px rgba(0, 0, 0, 0.28), 0 12px 32px rgba(0, 0, 0, 0.38),
+    0 0 0 1px rgba(76, 196, 127, 0.18);
+  --app-result-header-bg: linear-gradient(160deg, #143d2a 0%, #163032 100%);
   --app-ring-track: #283939;
+}
+
+/* Pealkirjad Plus Jakarta Sansiga, veidi tihedama tähevahega */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6 {
+  font-family: var(--app-heading-font-family);
+  letter-spacing: -0.01em;
 }
 
 /* Brändi roheline pealkirjadele ja aktsentidele */
@@ -154,27 +200,27 @@
 }
 
 .btn-primary {
-  --bs-btn-bg: #37474f;
-  --bs-btn-border-color: #37474f;
-  --bs-btn-hover-bg: #263238;
-  --bs-btn-hover-border-color: #263238;
-  --bs-btn-active-bg: #1c262b;
-  --bs-btn-active-border-color: #1c262b;
-  --bs-btn-disabled-bg: #37474f;
-  --bs-btn-disabled-border-color: #37474f;
-  --bs-btn-focus-shadow-rgb: 55, 71, 79;
+  --bs-btn-bg: #1a7a43;
+  --bs-btn-border-color: #1a7a43;
+  --bs-btn-hover-bg: #166536;
+  --bs-btn-hover-border-color: #166536;
+  --bs-btn-active-bg: #14532d;
+  --bs-btn-active-border-color: #14532d;
+  --bs-btn-disabled-bg: #1a7a43;
+  --bs-btn-disabled-border-color: #1a7a43;
+  --bs-btn-focus-shadow-rgb: 26, 122, 67;
 }
 
 .btn-outline-primary {
-  --bs-btn-color: #37474f;
-  --bs-btn-border-color: #37474f;
-  --bs-btn-hover-bg: #37474f;
-  --bs-btn-hover-border-color: #37474f;
-  --bs-btn-active-bg: #1c262b;
-  --bs-btn-active-border-color: #1c262b;
-  --bs-btn-disabled-color: #37474f;
-  --bs-btn-disabled-border-color: #37474f;
-  --bs-btn-focus-shadow-rgb: 55, 71, 79;
+  --bs-btn-color: #1a7a43;
+  --bs-btn-border-color: #1a7a43;
+  --bs-btn-hover-bg: #1a7a43;
+  --bs-btn-hover-border-color: #1a7a43;
+  --bs-btn-active-bg: #14532d;
+  --bs-btn-active-border-color: #14532d;
+  --bs-btn-disabled-color: #1a7a43;
+  --bs-btn-disabled-border-color: #1a7a43;
+  --bs-btn-focus-shadow-rgb: 26, 122, 67;
 }
 
 .btn-success {
@@ -204,19 +250,19 @@
 /* Pehme sekundaarne nupp: sinakashall taust + primary tekst, hoveril veidi tumedam hall.
    Bootstrapi vaikimisi btn-light on valgel kaardil peaaegu nähtamatu. */
 .btn-light {
-  --bs-btn-color: #37474f;
-  --bs-btn-bg: #e3e9ec;
-  --bs-btn-border-color: #e3e9ec;
-  --bs-btn-hover-color: #263238;
-  --bs-btn-hover-bg: #cfd8dc;
-  --bs-btn-hover-border-color: #cfd8dc;
-  --bs-btn-active-color: #263238;
-  --bs-btn-active-bg: #b0bec5;
-  --bs-btn-active-border-color: #b0bec5;
-  --bs-btn-disabled-color: #90a4ae;
-  --bs-btn-disabled-bg: #eceff1;
-  --bs-btn-disabled-border-color: #eceff1;
-  --bs-btn-focus-shadow-rgb: 55, 71, 79;
+  --bs-btn-color: #14532d;
+  --bs-btn-bg: #e5efe8;
+  --bs-btn-border-color: #e5efe8;
+  --bs-btn-hover-color: #14532d;
+  --bs-btn-hover-bg: #d2e4d8;
+  --bs-btn-hover-border-color: #d2e4d8;
+  --bs-btn-active-color: #14532d;
+  --bs-btn-active-bg: #bad5c3;
+  --bs-btn-active-border-color: #bad5c3;
+  --bs-btn-disabled-color: #88a491;
+  --bs-btn-disabled-bg: #edf3ef;
+  --bs-btn-disabled-border-color: #edf3ef;
+  --bs-btn-focus-shadow-rgb: 26, 122, 67;
 }
 
 /* Lehe taust (MainLayout.vue, LoginView.vue): heleroheline alatoon, mündikuma paremas ülanurgas
@@ -225,8 +271,8 @@
   min-height: calc(100vh - 57px);
   background-color: var(--app-page-bg);
   background-image:
-    radial-gradient(circle at 100% 0%, var(--app-page-glow), transparent 45%),
-    radial-gradient(circle at 0% 100%, var(--app-page-glow-2), transparent 50%),
+    radial-gradient(circle at 100% 0%, var(--app-page-glow), transparent 40%),
+    radial-gradient(circle at 0% 100%, var(--app-page-glow), transparent 40%),
     radial-gradient(var(--app-dot-color) 1px, transparent 1px);
   background-size:
     100% 100%,
@@ -244,7 +290,7 @@
    Mõlemad kihid peavad alustama animatsiooni samal hetkel (vt MainLayout.vue isDotWaveShown). */
 .app-dot-wave-layer {
   pointer-events: none;
-  background-image: radial-gradient(var(--app-dot-wave-color) 2px, transparent 2.6px);
+  background-image: radial-gradient(var(--app-dot-wave-color) 1.5px, transparent 2px);
   background-size: 22px 22px;
   background-attachment: fixed;
   -webkit-mask-image: linear-gradient(110deg, transparent 40%, #000 50%, transparent 60%);
@@ -289,35 +335,69 @@
   box-shadow: var(--app-surface-shadow);
 }
 
+/* Kõik märgid (mullikesed) on ühe stiiliga: hele taust, tume tekst, õrn ääris — ainult värv erineb.
+   Komponentides EI kirjutata .badge suurust ega paddingut üle. */
+.badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.35em 0.75em;
+  border: var(--bs-border-width) solid transparent;
+}
+
 /* Staatuse märgid (vt Status.js) — värvid tulevad Bootstrapi success/warning/danger muutujatest */
+/* "Aktiivne", "Avatud", "Kinnitatud" — hele münt, pehmem ja heledam kui brändiroheline
+   "Sooritatud" märk, et need kaks oleks eristatavad */
 .badge-active {
-  background-color: var(--bs-success-bg-subtle);
-  color: var(--bs-success-text-emphasis);
-  border: var(--bs-border-width) solid var(--bs-success-border-subtle);
+  background-color: var(--app-badge-active-bg);
+  color: var(--app-badge-active-color);
+  border-color: var(--app-badge-active-border);
 }
 
 .badge-in-progress {
   background-color: var(--bs-warning-bg-subtle);
   color: var(--bs-warning-text-emphasis);
-  border: var(--bs-border-width) solid var(--bs-warning-border-subtle);
+  border-color: var(--bs-warning-border-subtle);
 }
 
 .badge-inactive {
   background-color: var(--bs-danger-bg-subtle);
   color: var(--bs-danger-text-emphasis);
-  border: var(--bs-border-width) solid var(--bs-danger-border-subtle);
+  border-color: var(--bs-danger-border-subtle);
+}
+
+/* Brändiroheline: "Sooritatud" staatus */
+.badge-completed {
+  background-color: var(--bs-primary-bg-subtle);
+  color: var(--bs-primary-text-emphasis);
+  border-color: var(--bs-primary-border-subtle);
+}
+
+/* Neutraalne: tasemed (Juunior, Mid, ...) ja muu sildiinfo */
+.badge-neutral {
+  background-color: var(--bs-gray-100);
+  color: var(--bs-gray-700);
+  border-color: var(--bs-gray-300);
+}
+
+/* Kompetentsi nimi küsimuste juures ja kasutajate grupid — summutatud teraskiltkivi sinine
+   (mitte Bootstrapi erk info-tsüaan) */
+.badge-competence,
+.badge-group {
+  background-color: var(--app-badge-competence-bg);
+  color: var(--app-badge-competence-color);
+  border-color: var(--app-badge-competence-border);
 }
 
 /* Bootstrapis on dropdowni hover/aktiivne värv kõvasti kirjas (sinine), mitte --bs-primary kaudu */
 .dropdown-menu {
-  --bs-dropdown-link-hover-bg: #eceff1;
-  --bs-dropdown-link-hover-color: #1c262b;
-  --bs-dropdown-link-active-bg: #37474f;
+  --bs-dropdown-link-hover-bg: #dcf3e4;
+  --bs-dropdown-link-hover-color: #14532d;
+  --bs-dropdown-link-active-bg: #1a7a43;
   --bs-dropdown-link-active-color: #fff;
 }
 
 .nav-pills {
-  --bs-nav-pills-link-active-bg: #37474f;
+  --bs-nav-pills-link-active-bg: #1a7a43;
 }
 
 /* Bootstrapis on progressiriba värv kõvasti kirjas, mitte --bs-primary kaudu.
@@ -330,8 +410,8 @@
 .form-control:focus,
 .form-select:focus,
 .form-check-input:focus {
-  border-color: #b0bec5;
-  box-shadow: 0 0 0 0.25rem rgba(55, 71, 79, 0.25);
+  border-color: #9fdcb4;
+  box-shadow: 0 0 0 0.25rem rgba(26, 122, 67, 0.25);
 }
 
 /* Ühine hele ja ümarate nurkadega tooltip (testi vaate ⓘ, kärbitud kaardipealkiri).
@@ -351,40 +431,40 @@
 }
 
 .form-check-input:checked {
-  background-color: #37474f;
-  border-color: #37474f;
+  background-color: var(--app-selection);
+  border-color: var(--app-selection);
 }
 
 /* ---------- Tume režiim: komponendid, mille värvid on Bootstrapis või ülal kõvasti kirjas ---------- */
 
 [data-bs-theme='dark'] .btn-primary {
   --bs-btn-color: #fff;
-  --bs-btn-bg: #186e86;
-  --bs-btn-border-color: #186e86;
+  --bs-btn-bg: #1a7a43;
+  --bs-btn-border-color: #1a7a43;
   --bs-btn-hover-color: #fff;
-  --bs-btn-hover-bg: #1d7892;
-  --bs-btn-hover-border-color: #1d7892;
+  --bs-btn-hover-bg: #1f8a4c;
+  --bs-btn-hover-border-color: #1f8a4c;
   --bs-btn-active-color: #fff;
-  --bs-btn-active-bg: #145d71;
-  --bs-btn-active-border-color: #145d71;
+  --bs-btn-active-bg: #166536;
+  --bs-btn-active-border-color: #166536;
   --bs-btn-disabled-color: #fff;
-  --bs-btn-disabled-bg: #186e86;
-  --bs-btn-disabled-border-color: #186e86;
-  --bs-btn-focus-shadow-rgb: 132, 203, 220;
+  --bs-btn-disabled-bg: #1a7a43;
+  --bs-btn-disabled-border-color: #1a7a43;
+  --bs-btn-focus-shadow-rgb: 76, 196, 127;
 }
 
 [data-bs-theme='dark'] .btn-outline-primary {
-  --bs-btn-color: #84cbdc;
-  --bs-btn-border-color: #5e9daf;
+  --bs-btn-color: #4cc47f;
+  --bs-btn-border-color: #3aa866;
   --bs-btn-hover-color: #fff;
-  --bs-btn-hover-bg: #186e86;
-  --bs-btn-hover-border-color: #186e86;
+  --bs-btn-hover-bg: #1a7a43;
+  --bs-btn-hover-border-color: #1a7a43;
   --bs-btn-active-color: #fff;
-  --bs-btn-active-bg: #145d71;
-  --bs-btn-active-border-color: #145d71;
-  --bs-btn-disabled-color: #5e9daf;
-  --bs-btn-disabled-border-color: #5e9daf;
-  --bs-btn-focus-shadow-rgb: 132, 203, 220;
+  --bs-btn-active-bg: #166536;
+  --bs-btn-active-border-color: #166536;
+  --bs-btn-disabled-color: #3aa866;
+  --bs-btn-disabled-border-color: #3aa866;
+  --bs-btn-focus-shadow-rgb: 76, 196, 127;
 }
 
 [data-bs-theme='dark'] .btn-outline-success {
@@ -415,31 +495,25 @@
   --bs-btn-disabled-color: #717d7e;
   --bs-btn-disabled-bg: #233132;
   --bs-btn-disabled-border-color: #233132;
-  --bs-btn-focus-shadow-rgb: 132, 203, 220;
+  --bs-btn-focus-shadow-rgb: 76, 196, 127;
 }
 
 [data-bs-theme='dark'] .dropdown-menu {
   --bs-dropdown-link-hover-bg: #2e4447;
   --bs-dropdown-link-hover-color: #f2f8f8;
-  --bs-dropdown-link-active-bg: #186e86;
+  --bs-dropdown-link-active-bg: #1a7a43;
   --bs-dropdown-link-active-color: #fff;
 }
 
 [data-bs-theme='dark'] .nav-pills {
-  --bs-nav-pills-link-active-bg: #186e86;
+  --bs-nav-pills-link-active-bg: #1a7a43;
 }
 
 [data-bs-theme='dark'] .form-control:focus,
 [data-bs-theme='dark'] .form-select:focus,
 [data-bs-theme='dark'] .form-check-input:focus {
-  border-color: #5e9daf;
-  box-shadow: 0 0 0 0.25rem rgba(132, 203, 220, 0.3);
-}
-
-/* Teraskiltkivi, mitte roheline — valitud vastus ei tohi mõjuda "õige vastusena" */
-[data-bs-theme='dark'] .form-check-input:checked {
-  background-color: #3d92ad;
-  border-color: #3d92ad;
+  border-color: #3aa866;
+  box-shadow: 0 0 0 0.25rem rgba(76, 196, 127, 0.3);
 }
 
 /* Teemapõhised pildivariandid (nt aaloe illustratsioon): .theme-light-only ainult heledas,

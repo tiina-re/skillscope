@@ -86,9 +86,9 @@ export default {
 .brand {
   display: inline-flex;
   align-items: center;
-  font-family: 'Sora', system-ui, sans-serif;
+  font-family: var(--app-heading-font-family);
   font-size: 1.6rem;
-  letter-spacing: -0.06em;
+  letter-spacing: -0.03em;
   text-decoration: none;
 }
 
@@ -97,10 +97,10 @@ export default {
   color: var(--app-ink);
 }
 
-/* Rohelised toonid on tuletatud aaloe illustratsiooni mündirohelisest (#92e3a9) */
+/* Roheline → münt, nagu testi tulemuse kaardil */
 .brand-scope {
   font-weight: 800;
-  background: linear-gradient(90deg, var(--brand-green), #3fbf74);
+  background: linear-gradient(90deg, var(--brand-green), var(--brand-mint));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
