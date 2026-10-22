@@ -11,6 +11,11 @@ export default {
       type: String,
       default: '',
     },
+    // Vormiga modalis false — kogemata taustaklõps ei tohi sisestatud teksti kaotada
+    isBackdropClosable: {
+      type: Boolean,
+      default: true,
+    },
   },
   emits: ['event-modal-closed'],
   computed: {
@@ -22,18 +27,21 @@ export default {
     close() {
       this.$emit('event-modal-closed')
     },
+    closeOnBackdrop() {
+      if (this.isBackdropClosable) this.close()
+    },
   },
 }
 </script>
 
 <template>
   <div v-if="isOpen">
-    <div class="modal d-block" tabindex="-1" @click.self="close">
+    <div class="modal d-block" tabindex="-1" @click.self="closeOnBackdrop">
       <!-- Tsentreeritud dialoog katab kogu kõrguse, seega taustaklõps tuleb püüda ka siin -->
       <div
         class="modal-dialog modal-dialog-centered modal-dialog-scrollable"
         :class="sizeClass"
-        @click.self="close"
+        @click.self="closeOnBackdrop"
       >
         <div class="modal-content base-modal-content">
           <div class="modal-header">
@@ -93,10 +101,24 @@ export default {
   }
 }
 
+/* Läbipaistvus on värvis, mitte opacity's — opacity teeks ka blur'i poolläbipaistvaks
+   ja terav leht paistaks läbi */
 .base-modal-backdrop {
-  --bs-backdrop-bg: #1c262b;
-  --bs-backdrop-opacity: 0.55;
-  backdrop-filter: blur(3px);
+  --bs-backdrop-bg: rgba(28, 38, 43, 0.55);
+  --bs-backdrop-opacity: 1;
+  backdrop-filter: blur(4px);
+}
+
+/* Tumedas teemas oleks moodul sama värvi kui leht — tõstame pinna heledamaks (elevatsioon)
+   ja teeme tausta tumedamaks, et moodul eristuks */
+[data-bs-theme='dark'] .base-modal-content {
+  background-color: var(--bs-secondary-bg);
+  border: 1px solid rgba(220, 240, 238, 0.12);
+  box-shadow: 0 1.5rem 3.5rem rgba(0, 0, 0, 0.6);
+}
+
+[data-bs-theme='dark'] .base-modal-backdrop {
+  --bs-backdrop-bg: rgba(0, 0, 0, 0.6);
 }
 
 @keyframes modal-appear {

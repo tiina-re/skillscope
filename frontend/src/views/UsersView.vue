@@ -99,7 +99,7 @@ export default {
       <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-5">
         <MainTitle title="Kasutajad" />
         <button
-          class="btn btn-color rounded-2 d-inline-flex align-items-center gap-2"
+          class="btn btn-primary fw-bold rounded-2 d-inline-flex align-items-center gap-2"
           @click="isAddUserModalOpen = true"
         >
           <PhUserPlus :size="20" />
@@ -252,15 +252,6 @@ export default {
   font-size: 0.85rem;
   font-weight: 600;
   white-space: nowrap;
-}
-
-.btn-color {
-  --bs-btn-bg: var(--bs-gray-200);
-  --bs-btn-color: var(--bs-blue);
-  font-weight: bold;
-  --bs-btn-hover-bg: var(--bs-blue);
-  --bs-btn-hover-color: var(--bs-light);
-  --bs-btn-active-bg: var(--bs-gray-400);
 }
 
 .dropdown-menu-custom {

@@ -8,6 +8,7 @@ import TestAttemptView from '@/views/TestAttemptView.vue'
 import TestStartView from '@/views/TestStartView.vue'
 import TestDetailView from '@/views/TestDetailView.vue'
 import CompetenceView from '@/views/CompetenceView.vue'
+import CompetenceDetailView from '@/views/CompetenceDetailView.vue'
 import MyTestsView from '@/views/MyTestsView.vue'
 import UsersView from '@/views/UsersView.vue'
 
@@ -34,6 +35,13 @@ const router = createRouter({
         { path: 'my-tests', name: 'myTestsRoute', component: MyTestsView },
         { path: 'test-result', name: 'testResultRoute', component: TestResultView },
         { path: 'competences', name: 'competenceView', component: CompetenceView, meta: STAFF },
+        {
+          path: 'competences/:competenceId(\\d+)',
+          name: 'competenceDetailRoute',
+          component: CompetenceDetailView,
+          props: toNumber('competenceId'),
+          meta: STAFF,
+        },
         { path: 'questions', name: 'questionBankView', component: QuestionBankView, meta: STAFF },
         { path: 'users', name: 'usersRoute', component: UsersView, meta: STAFF },
         { path: 'questions/ai', name: 'aiQuestionBankView', component: AiQuestionBankView, meta: STAFF },

@@ -61,3 +61,36 @@ compileJava {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+// "reset db" nupp IntelliJ-s: käivitab docs/database skriptid järjest (kustutab kõik andmed!)
+configurations {
+    dbDriver
+}
+
+dependencies {
+    dbDriver 'org.postgresql:postgresql'
+}
+
+tasks.register('resetDb') {
+    group = 'database'
+    description = 'Käivitab docs/database/1_reset_database.sql, 2_create.sql ja 3_import.sql'
+    doLast {
+        def appProperties = new Properties()
+        file('src/main/resources/application.properties').withInputStream { appProperties.load(it) }
+        def credentials = new Properties()
+        credentials.user = appProperties['spring.datasource.username']
+        credentials.password = appProperties['spring.datasource.password']
+
+        def classLoader = new URLClassLoader(configurations.dbDriver.collect { it.toURI().toURL() } as URL[])
+        def driver = classLoader.loadClass('org.postgresql.Driver').getDeclaredConstructor().newInstance()
+        driver.connect('jdbc:postgresql://localhost:5432/vali_it', credentials).withCloseable { connection ->
+            ['1_reset_database.sql', '2_create.sql', '3_import.sql'].each { fileName ->
+                connection.createStatement().withCloseable { statement ->
+                    statement.escapeProcessing = false
+                    statement.execute(file("../docs/database/$fileName").getText('UTF-8'))
+                }
+                println "OK: $fileName"
+            }
+        }
+    }
+}

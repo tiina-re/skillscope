@@ -7,6 +7,7 @@ import QuestionAnswerOption from '@/components/QuestionAnswerOption.vue'
 import StarRating from '@/components/StarRating.vue'
 import SuccessToast from '@/components/SuccessToast.vue'
 import AlertDanger from '@/components/AlertDanger.vue'
+import BaseModal from '@/components/modal/BaseModal.vue'
 import { PhCaretDown, PhCheck, PhClipboardText, PhSparkle, PhX } from '@phosphor-icons/vue'
 
 export default {
@@ -19,6 +20,7 @@ export default {
     StarRating,
     SuccessToast,
     AlertDanger,
+    BaseModal,
     PhCaretDown,
     PhCheck,
     PhClipboardText,
@@ -235,74 +237,71 @@ export default {
       </div>
     </div>
 
-    <template v-if="questionToReview">
-      <div class="modal d-block" tabindex="-1" role="dialog" aria-modal="true">
-        <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content rounded-4 border-0 shadow">
-            <div class="modal-body p-4">
-              <h5 class="fw-bold mb-3">Vaata AI küsimus üle</h5>
-              <p class="mb-4">
-                <strong>{{ questionToReview.questionTitle }}</strong>
-              </p>
-              <AlertDanger :error-message="reviewErrorMessage" class="mb-3" />
+    <BaseModal
+      :is-open="questionToReview !== null"
+      :is-backdrop-closable="false"
+      @event-modal-closed="closeReviewForm"
+    >
+      <template #title>Vaata AI küsimus üle</template>
+      <template #body>
+        <p class="mb-4">
+          <strong>{{ questionToReview.questionTitle }}</strong>
+        </p>
+        <AlertDanger :error-message="reviewErrorMessage" class="mb-3" />
 
-              <div class="mb-3">
-                <span class="form-label fw-semibold d-block">Hinnang</span>
-                <StarRating v-model="aiQuestionReviewRequestDto.score" />
-              </div>
+        <div class="mb-3">
+          <span class="form-label fw-semibold d-block">Hinnang</span>
+          <StarRating v-model="aiQuestionReviewRequestDto.score" />
+        </div>
 
-              <div class="mb-3">
-                <label for="review-feedback" class="form-label fw-semibold">Tagasiside</label>
-                <textarea
-                  id="review-feedback"
-                  v-model="aiQuestionReviewRequestDto.feedback"
-                  class="form-control"
-                  rows="3"
-                  maxlength="255"
-                  placeholder="Mis oli hea, mida võiks parandada?"
-                ></textarea>
-                <div class="form-text text-end">
-                  {{ aiQuestionReviewRequestDto.feedback.length }} / 255
-                </div>
-              </div>
-
-              <p class="text-secondary small mb-0">
-                Kinnitamisel lisatakse küsimus koos vastusevariantidega küsimuste panka.
-              </p>
-            </div>
-            <div class="modal-footer border-0 px-4 pb-4 pt-0 gap-2">
-              <button
-                type="button"
-                class="btn btn-light fw-bold rounded-2 me-auto"
-                :disabled="isReviewing"
-                @click="closeReviewForm"
-              >
-                Tühista
-              </button>
-              <button
-                type="button"
-                class="btn btn-outline-danger fw-bold rounded-2 d-flex align-items-center gap-2"
-                :disabled="isReviewing"
-                @click="reviewAiQuestion(false)"
-              >
-                <PhX :size="16" weight="bold" />
-                Lükka tagasi
-              </button>
-              <button
-                type="button"
-                class="btn btn-primary fw-bold rounded-2 d-flex align-items-center gap-2"
-                :disabled="isReviewing"
-                @click="reviewAiQuestion(true)"
-              >
-                <PhCheck :size="16" weight="bold" />
-                Kinnita
-              </button>
-            </div>
+        <div class="mb-3">
+          <label for="review-feedback" class="form-label fw-semibold">Tagasiside</label>
+          <textarea
+            id="review-feedback"
+            v-model="aiQuestionReviewRequestDto.feedback"
+            class="form-control"
+            rows="3"
+            maxlength="255"
+            placeholder="Mis oli hea, mida võiks parandada?"
+          ></textarea>
+          <div class="form-text text-end">
+            {{ aiQuestionReviewRequestDto.feedback.length }} / 255
           </div>
         </div>
-      </div>
-      <div class="modal-backdrop fade show"></div>
-    </template>
+
+        <p class="text-secondary small mb-0">
+          Kinnitamisel lisatakse küsimus koos vastusevariantidega küsimuste panka.
+        </p>
+      </template>
+      <template #buttons>
+        <button
+          type="button"
+          class="btn btn-light fw-bold rounded-2 me-auto"
+          :disabled="isReviewing"
+          @click="closeReviewForm"
+        >
+          Tühista
+        </button>
+        <button
+          type="button"
+          class="btn btn-outline-danger fw-bold rounded-2 d-flex align-items-center gap-2"
+          :disabled="isReviewing"
+          @click="reviewAiQuestion(false)"
+        >
+          <PhX :size="16" weight="bold" />
+          Lükka tagasi
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary fw-bold rounded-2 d-flex align-items-center gap-2"
+          :disabled="isReviewing"
+          @click="reviewAiQuestion(true)"
+        >
+          <PhCheck :size="16" weight="bold" />
+          Kinnita
+        </button>
+      </template>
+    </BaseModal>
 
     <SuccessToast :success-message="successMessage" @event-close="successMessage = ''" />
   </div>

@@ -10,5 +10,6 @@ import lombok.NoArgsConstructor;
 public class CompetenceResponseDto {
     private Integer competenceId;
     private String competenceName;
+    private String competenceShortDescription;
 
 }
