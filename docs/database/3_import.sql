@@ -518,6 +518,89 @@ VALUES (1, 1, true, NULL, 'P', 'Ümbritseva leksikaalse skoobi "this" väärtus'
        (5, 3, false, NULL, 'R', 'Väär', NULL, 1, 1);
 
 -- ------------------------------------------------------------
+-- Lisaandmed töölaua graafikute jaoks (keskmine tulemus kompetentsi järgi, läbimise määr):
+-- 6 kasutajat ja 24 sooritatud testi koos tulemustega viimase 2 nädala jooksul.
+-- Punktid vastavad testide maksimumpunktidele, P/F vastab testi läbimise protsendile.
+-- test_question_result ridu neil pole, seega nende tulemuste detailvaade on küsimusteta.
+-- ------------------------------------------------------------
+INSERT INTO "user" (id, email, password_hash, role_id, status, created_at, updated_at)
+VALUES (5, 'mari.tamm@example.com', 'user123', 3, 'A', now() - interval '28 days', now()),
+       (6, 'jaan.kask@example.com', 'user123', 3, 'A', now() - interval '27 days', now()),
+       (7, 'liis.saar@example.com', 'user123', 3, 'A', now() - interval '25 days', now()),
+       (8, 'rasmus.mets@example.com', 'user123', 3, 'A', now() - interval '24 days', now()),
+       (9, 'kertu.lepp@example.com', 'user123', 3, 'A', now() - interval '22 days', now()),
+       (10, 'oliver.rebane@example.com', 'user123', 3, 'A', now() - interval '20 days', now());
+
+INSERT INTO profile (id, user_id, first_name, last_name, phone_number, created_at, updated_at)
+VALUES (4, 5, 'Mari', 'Tamm', NULL, now() - interval '28 days', now()),
+       (5, 6, 'Jaan', 'Kask', NULL, now() - interval '27 days', now()),
+       (6, 7, 'Liis', 'Saar', NULL, now() - interval '25 days', now()),
+       (7, 8, 'Rasmus', 'Mets', NULL, now() - interval '24 days', now()),
+       (8, 9, 'Kertu', 'Lepp', NULL, now() - interval '22 days', now()),
+       (9, 10, 'Oliver', 'Rebane', NULL, now() - interval '20 days', now());
+
+INSERT INTO group_member (id, group_id, user_id, added_by, created_at, updated_at)
+VALUES (4, 1, 5, 2, now() - interval '27 days', now() - interval '27 days'),
+       (5, 1, 6, 2, now() - interval '26 days', now() - interval '26 days'),
+       (6, 2, 7, 2, now() - interval '24 days', now() - interval '24 days'),
+       (7, 2, 8, 2, now() - interval '23 days', now() - interval '23 days'),
+       (8, 3, 9, 1, now() - interval '21 days', now() - interval '21 days'),
+       (9, 3, 10, 1, now() - interval '19 days', now() - interval '19 days');
+
+INSERT INTO user_test (id, test_id, user_id, opens_at, closes_at, status, group_id, assigned_by, created_at)
+VALUES (14, 1, 5, now() - interval '5 days', now() + interval '2 days', 'C', 1, 2, now() - interval '5 days'),
+       (15, 1, 6, now() - interval '7 days', now(), 'C', 1, 2, now() - interval '7 days'),
+       (16, 1, 7, now() - interval '9 days', now() - interval '2 days', 'C', 2, 2, now() - interval '9 days'),
+       (17, 2, 5, now() - interval '6 days', now() + interval '1 days', 'C', 1, 2, now() - interval '6 days'),
+       (18, 2, 8, now() - interval '12 days', now() - interval '5 days', 'C', 2, 2, now() - interval '12 days'),
+       (19, 3, 6, now() - interval '8 days', now() - interval '1 days', 'C', 1, 2, now() - interval '8 days'),
+       (20, 3, 9, now() - interval '14 days', now() - interval '7 days', 'C', 3, 1, now() - interval '14 days'),
+       (21, 4, 7, now() - interval '4 days', now() + interval '3 days', 'C', 2, 2, now() - interval '4 days'),
+       (22, 4, 10, now() - interval '10 days', now() - interval '3 days', 'C', 3, 1, now() - interval '10 days'),
+       (23, 4, 8, now() - interval '15 days', now() - interval '8 days', 'C', 2, 2, now() - interval '15 days'),
+       (24, 5, 5, now() - interval '5 days', now() + interval '2 days', 'C', 1, 2, now() - interval '5 days'),
+       (25, 5, 9, now() - interval '11 days', now() - interval '4 days', 'C', 3, 1, now() - interval '11 days'),
+       (26, 5, 10, now() - interval '17 days', now() - interval '10 days', 'C', 3, 1, now() - interval '17 days'),
+       (27, 6, 6, now() - interval '6 days', now() + interval '1 days', 'C', 1, 2, now() - interval '6 days'),
+       (28, 6, 7, now() - interval '13 days', now() - interval '6 days', 'C', 2, 2, now() - interval '13 days'),
+       (29, 7, 8, now() - interval '2 days', now() + interval '5 days', 'C', 2, 2, now() - interval '2 days'),
+       (30, 7, 9, now() - interval '9 days', now() - interval '2 days', 'C', 3, 1, now() - interval '9 days'),
+       (31, 7, 10, now() - interval '16 days', now() - interval '9 days', 'C', 3, 1, now() - interval '16 days'),
+       (32, 8, 5, now() - interval '3 days', now() + interval '27 days', 'C', 1, 2, now() - interval '3 days'),
+       (33, 8, 6, now() - interval '6 days', now() + interval '24 days', 'C', 1, 2, now() - interval '6 days'),
+       (34, 8, 7, now() - interval '10 days', now() + interval '20 days', 'C', 2, 2, now() - interval '10 days'),
+       (35, 8, 3, now() - interval '5 days', now() + interval '25 days', 'C', 1, 2, now() - interval '5 days'),
+       (36, 9, 8, now() - interval '4 days', now() + interval '3 days', 'C', 2, 2, now() - interval '4 days'),
+       (37, 9, 10, now() - interval '8 days', now() - interval '1 days', 'C', 3, 1, now() - interval '8 days');
+
+INSERT INTO result (id, user_test_id, status, max_score, score_total, completed_at, started_at, total_questions,
+                    questions_answered)
+VALUES (4, 14, 'P', 20, 20, now() - interval '2 days', now() - interval '2 days' - interval '18 min', 2, 2),
+       (5, 15, 'F', 20, 10, now() - interval '4 days', now() - interval '4 days' - interval '22 min', 2, 2),
+       (6, 16, 'P', 20, 20, now() - interval '6 days', now() - interval '6 days' - interval '12 min', 2, 2),
+       (7, 17, 'P', 10, 10, now() - interval '3 days', now() - interval '3 days' - interval '9 min', 1, 1),
+       (8, 18, 'F', 10, 0, now() - interval '9 days', now() - interval '9 days' - interval '14 min', 1, 1),
+       (9, 19, 'P', 5, 5, now() - interval '5 days', now() - interval '5 days' - interval '4 min', 1, 1),
+       (10, 20, 'F', 5, 0, now() - interval '11 days', now() - interval '11 days' - interval '6 min', 1, 1),
+       (11, 21, 'P', 20, 20, now() - interval '1 days', now() - interval '1 days' - interval '11 min', 2, 2),
+       (12, 22, 'P', 20, 10, now() - interval '7 days', now() - interval '7 days' - interval '15 min', 2, 2),
+       (13, 23, 'P', 20, 20, now() - interval '12 days', now() - interval '12 days' - interval '10 min', 2, 2),
+       (14, 24, 'P', 20, 15, now() - interval '2 days', now() - interval '2 days' - interval '13 min', 3, 3),
+       (15, 25, 'F', 20, 5, now() - interval '8 days', now() - interval '8 days' - interval '15 min', 3, 3),
+       (16, 26, 'P', 20, 20, now() - interval '14 days', now() - interval '14 days' - interval '9 min', 3, 3),
+       (17, 27, 'P', 10, 10, now() - interval '3 days', now() - interval '3 days' - interval '20 min', 1, 1),
+       (18, 28, 'F', 10, 0, now() - interval '10 days', now() - interval '10 days' - interval '25 min', 1, 1),
+       (19, 29, 'P', 10, 10, now() - interval '1 days', now() - interval '1 days' - interval '5 min', 1, 1),
+       (20, 30, 'P', 10, 10, now() - interval '6 days', now() - interval '6 days' - interval '7 min', 1, 1),
+       (21, 31, 'F', 10, 0, now() - interval '13 days', now() - interval '13 days' - interval '6 min', 1, 1),
+       (22, 32, 'P', 105, 85, now() - interval '2 days', now() - interval '2 days' - interval '19 min', 12, 12),
+       (23, 33, 'F', 105, 45, now() - interval '5 days', now() - interval '5 days' - interval '20 min', 12, 12),
+       (24, 34, 'P', 105, 95, now() - interval '9 days', now() - interval '9 days' - interval '17 min', 12, 12),
+       (25, 35, 'P', 105, 70, now() - interval '4 days', now() - interval '4 days' - interval '18 min', 12, 12),
+       (26, 36, 'P', 15, 15, now() - interval '3 days', now() - interval '3 days' - interval '16 min', 2, 2),
+       (27, 37, 'P', 15, 10, now() - interval '7 days', now() - interval '7 days' - interval '19 min', 2, 2);
+
+-- ------------------------------------------------------------
 -- Keep sequences in sync after manual id inserts
 -- ------------------------------------------------------------
 SELECT setval(pg_get_serial_sequence('role', 'id'), (SELECT MAX(id) FROM role));

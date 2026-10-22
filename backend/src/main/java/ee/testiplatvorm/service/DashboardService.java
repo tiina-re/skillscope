@@ -4,6 +4,7 @@ import ee.testiplatvorm.controller.dashboard.dto.DashboardDto;
 import ee.testiplatvorm.infrastructure.exception.ForbiddenException;
 import ee.testiplatvorm.persistence.aiquestion.AiQuestionRepository;
 import ee.testiplatvorm.persistence.question.QuestionRepository;
+import ee.testiplatvorm.persistence.result.ResultRepository;
 import ee.testiplatvorm.persistence.test.TestRepository;
 import ee.testiplatvorm.persistence.user.User;
 import ee.testiplatvorm.persistence.usertest.UserTestRepository;
@@ -14,7 +15,9 @@ import java.time.OffsetDateTime;
 
 import static ee.testiplatvorm.Error.NO_PERMISSION_TO_VIEW_DASHBOARD;
 import static ee.testiplatvorm.Status.STATUS_ACTIVE;
+import static ee.testiplatvorm.Status.STATUS_FAILED;
 import static ee.testiplatvorm.Status.STATUS_OPEN;
+import static ee.testiplatvorm.Status.STATUS_PASSED;
 import static ee.testiplatvorm.Status.STATUS_PENDING;
 
 @Service
@@ -28,6 +31,7 @@ public class DashboardService {
     private final QuestionRepository questionRepository;
     private final AiQuestionRepository aiQuestionRepository;
     private final UserTestRepository userTestRepository;
+    private final ResultRepository resultRepository;
     private final UserService userService;
     private final CurrentUserService currentUserService;
 
@@ -43,6 +47,10 @@ public class DashboardService {
         dashboardDto.setRecentQuestionCount(questionRepository.countQuestionsCreatedAfter(recentFrom));
         dashboardDto.setPendingAiQuestionCount(aiQuestionRepository.countAiQuestionsBy(STATUS_PENDING.getCode()));
         dashboardDto.setRecentDays(RECENT_DAYS);
+        dashboardDto.setCompetenceScores(resultRepository.findCompetenceScores());
+        dashboardDto.setAverageScorePercent(resultRepository.findAverageScorePercent());
+        dashboardDto.setPassedResultCount(resultRepository.countCompletedResultsBy(STATUS_PASSED.getCode()));
+        dashboardDto.setFailedResultCount(resultRepository.countCompletedResultsBy(STATUS_FAILED.getCode()));
         return dashboardDto;
     }
 

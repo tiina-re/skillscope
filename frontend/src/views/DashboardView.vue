@@ -1,6 +1,8 @@
 <script>
 import MainTitle from '@/components/MainTitle.vue'
 import LoadingText from '@/components/LoadingText.vue'
+import BaseModal from '@/components/modal/BaseModal.vue'
+import CompetenceScoreBars from '@/components/CompetenceScoreBars.vue'
 import DashboardService from '@/services/DashboardService.js'
 import {
   PhArrowRight,
@@ -12,10 +14,12 @@ import {
 
 export default {
   name: 'DashboardView',
-  components: { MainTitle, LoadingText, PhArrowRight },
+  components: { MainTitle, LoadingText, BaseModal, CompetenceScoreBars, PhArrowRight },
   data() {
     return {
+      TOP_COMPETENCE_COUNT: 3,
       isLoading: true,
+      isAllScoresModalOpen: false,
       errorMessage: '',
       dashboard: {
         assignedTestCount: 0,
@@ -23,10 +27,26 @@ export default {
         recentQuestionCount: 0,
         pendingAiQuestionCount: 0,
         recentDays: 7,
+        competenceScores: [],
+        averageScorePercent: null,
+        passedResultCount: 0,
+        failedResultCount: 0,
       },
     }
   },
   computed: {
+    // Backend saadab kompetentsid parima tulemuse järgi sorteerituna
+    topCompetenceScores() {
+      return this.dashboard.competenceScores.slice(0, this.TOP_COMPETENCE_COUNT)
+    },
+    completedResultCount() {
+      return this.dashboard.passedResultCount + this.dashboard.failedResultCount
+    },
+    // Donut-graafiku läbitud osa: SVG ringi pathLength on 100, seega protsent = kaare pikkus
+    passedPercent() {
+      if (!this.completedResultCount) return 0
+      return (this.dashboard.passedResultCount / this.completedResultCount) * 100
+    },
     recentPeriodText() {
       return `viimase ${this.dashboard.recentDays} päeva jooksul`
     },
@@ -70,6 +90,9 @@ export default {
     },
   },
   methods: {
+    roundPercent(value) {
+      return Math.round(value ?? 0)
+    },
     getDashboard() {
       DashboardService.getDashboard()
         .then((response) => (this.dashboard = response.data))
@@ -90,7 +113,75 @@ export default {
 
     <div v-else-if="errorMessage.length" class="alert alert-danger">{{ errorMessage }}</div>
 
-    <div v-else class="stat-grid">
+    <div v-else class="dashboard-grid">
+      <section class="card app-surface rounded-4 chart-card">
+        <div class="card-body p-4 d-flex flex-column">
+          <h2 class="h6 fw-bold mb-1">Keskmine tulemus kompetentsi järgi</h2>
+          <p class="small text-body-secondary mb-4">Kõigi sooritatud testide põhjal</p>
+          <p v-if="!dashboard.competenceScores.length" class="text-body-secondary mb-0">
+            Ühtegi testi pole veel sooritatud
+          </p>
+          <template v-else>
+            <CompetenceScoreBars :competence-scores="topCompetenceScores" class="mb-4" />
+            <button
+              v-if="dashboard.competenceScores.length > TOP_COMPETENCE_COUNT"
+              class="btn btn-light fw-bold rounded-2 align-self-start mt-auto"
+              @click="isAllScoresModalOpen = true"
+            >
+              Vaata kõiki
+            </button>
+          </template>
+        </div>
+      </section>
+
+      <section class="card app-surface rounded-4 chart-card">
+        <div class="card-body p-4 d-flex flex-column">
+          <h2 class="h6 fw-bold mb-1">Läbimise määr</h2>
+          <p class="small text-body-secondary mb-4">{{ completedResultCount }} sooritatud testi</p>
+          <div class="d-flex flex-wrap align-items-center justify-content-center gap-5 flex-grow-1">
+            <div class="donut position-relative">
+              <svg viewBox="0 0 42 42" class="d-block w-100 h-100" aria-hidden="true">
+                <circle class="donut-failed" cx="21" cy="21" r="15.9" pathLength="100" />
+                <circle
+                  class="donut-passed"
+                  cx="21"
+                  cy="21"
+                  r="15.9"
+                  pathLength="100"
+                  :stroke-dasharray="`${passedPercent} ${100 - passedPercent}`"
+                />
+              </svg>
+              <div
+                class="donut-center position-absolute top-50 start-50 translate-middle text-center"
+              >
+                <div class="donut-value fw-bold">
+                  {{ roundPercent(dashboard.averageScorePercent) }}%
+                </div>
+                <small class="text-body-secondary">keskmine tulemus</small>
+              </div>
+            </div>
+            <ul class="list-unstyled d-flex flex-column gap-3 mb-0">
+              <li class="d-flex align-items-center gap-2">
+                <span class="legend-dot legend-passed rounded-circle"></span>
+                <span>
+                  <span class="fw-bold">{{ dashboard.passedResultCount }}</span> läbitud
+                  <span class="text-body-secondary">({{ roundPercent(passedPercent) }}%)</span>
+                </span>
+              </li>
+              <li class="d-flex align-items-center gap-2">
+                <span class="legend-dot legend-failed rounded-circle"></span>
+                <span>
+                  <span class="fw-bold">{{ dashboard.failedResultCount }}</span> läbikukkunud
+                  <span class="text-body-secondary">
+                    ({{ completedResultCount ? 100 - roundPercent(passedPercent) : 0 }}%)
+                  </span>
+                </span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <RouterLink
         v-for="statCard in statCards"
         :key="statCard.key"
@@ -115,14 +206,81 @@ export default {
         </div>
       </RouterLink>
     </div>
+
+    <BaseModal
+      size="lg"
+      :is-open="isAllScoresModalOpen"
+      @event-modal-closed="isAllScoresModalOpen = false"
+    >
+      <template #title>Keskmine tulemus kompetentsi järgi</template>
+      <template #body>
+        <CompetenceScoreBars :competence-scores="dashboard.competenceScores" class="mb-2" />
+      </template>
+    </BaseModal>
   </div>
 </template>
 
 <style scoped>
-.stat-grid {
+/* Graafikud on kumbki kahe väikese kaardi laiused: 4 veergu → 2 veergu → 1 veerg */
+.dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(15rem, 100%), 1fr));
+  grid-template-columns: 1fr;
   gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .chart-card {
+    grid-column: span 2;
+  }
+}
+
+@media (min-width: 1200px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.donut {
+  width: 11rem;
+  height: 11rem;
+}
+
+.donut circle {
+  fill: none;
+  stroke-width: 4;
+}
+
+/* Kaar algab kella 12 pealt */
+.donut-passed {
+  stroke: var(--bs-success);
+  stroke-dashoffset: 25;
+  stroke-linecap: round;
+}
+
+.donut-failed {
+  stroke: rgba(var(--bs-danger-rgb), 0.55);
+}
+
+.donut-value {
+  font-size: 2rem;
+  line-height: 1.1;
+}
+
+.legend-dot {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+.legend-passed {
+  background-color: var(--bs-success);
+}
+
+.legend-failed {
+  background-color: rgba(var(--bs-danger-rgb), 0.55);
 }
 
 .stat-card {
