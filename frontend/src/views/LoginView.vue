@@ -60,7 +60,8 @@ export default {
 </script>
 
 <template>
-  <div class="layout">
+  <!-- Navbar on siin .layout-i sees, seega taust peab katma terve ekraani (mitte 100vh - navbar) -->
+  <div class="layout min-vh-100">
     <AppNavbar :show-account-icon="false" />
     <div class="container text-start col-5 mt-5">
       <AlertDanger :error-message="errorMessage" />

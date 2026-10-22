@@ -96,8 +96,7 @@ export default {
   <div class="container py-4">
     <LoadingText v-if="isLoading" />
     <div v-else>
-      <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-5">
-        <MainTitle title="Kasutajad" />
+      <MainTitle title="Kasutajad">
         <button
           class="btn btn-primary fw-bold rounded-2 d-inline-flex align-items-center gap-2"
           @click="isAddUserModalOpen = true"
@@ -105,7 +104,7 @@ export default {
           <PhUserPlus :size="20" />
           Lisa kasutaja
         </button>
-      </div>
+      </MainTitle>
       <AlertDanger :error-message="errorMessage" />
       <div class="card app-surface rounded-4">
         <div class="table-responsive">
@@ -138,7 +137,7 @@ export default {
                     <span
                       v-for="groupName in user.groupNames"
                       :key="groupName"
-                      class="group-pill rounded-pill"
+                      class="badge rounded-pill badge-group"
                     >
                       {{ groupName }}
                     </span>
@@ -155,7 +154,7 @@ export default {
                     >
                       <span
                         class="badge rounded-pill"
-                        :class="userStatus[user.status]?.badgeClass ?? 'text-bg-secondary'"
+                        :class="userStatus[user.status]?.badgeClass ?? 'badge-neutral'"
                       >
                         {{ userStatus[user.status]?.name ?? user.status }}
                       </span>
@@ -239,19 +238,10 @@ export default {
   justify-content: center;
   width: 2.5rem;
   height: 2.5rem;
-  background-color: var(--bs-gray-200);
-  color: var(--bs-blue);
+  background-color: var(--bs-primary-bg-subtle);
+  color: var(--bs-primary-text-emphasis);
   font-size: 0.95rem;
   font-weight: bold;
-}
-
-.group-pill {
-  padding: 0.15rem 0.65rem;
-  background-color: var(--bs-gray-200);
-  color: var(--bs-blue);
-  font-size: 0.85rem;
-  font-weight: 600;
-  white-space: nowrap;
 }
 
 .dropdown-menu-custom {
@@ -269,11 +259,5 @@ export default {
   --bs-btn-hover-color: var(--bs-light);
   --bs-btn-active-bg: var(--bs-gray-400);
   font-weight: 600;
-}
-
-@media (min-width: 1800px) {
-  .container {
-    max-width: 1760px;
-  }
 }
 </style>

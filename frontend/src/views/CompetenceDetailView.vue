@@ -72,7 +72,7 @@ export default {
       <div class="card app-surface p-4 detail-card">
         <div class="card-body">
           <p class="eyebrow text-brand mb-2">Kompetents</p>
-          <h1 class="competence-title h3 fw-bold text-uppercase mb-4">
+          <h1 class="competence-title h3 fw-bold mb-4">
             {{ competence.competenceName }}
           </h1>
 
@@ -82,7 +82,7 @@ export default {
             <span
               v-for="level in competenceLevels"
               :key="level.competenceLevelId"
-              class="badge rounded-pill text-bg-light border"
+              class="badge rounded-pill badge-neutral"
               >{{ level.levelName }}</span
             >
           </div>
@@ -140,10 +140,5 @@ export default {
 .description {
   line-height: 1.7;
   white-space: pre-line;
-}
-
-.badge {
-  font-weight: 500;
-  padding: 0.45em 0.9em;
 }
 </style>

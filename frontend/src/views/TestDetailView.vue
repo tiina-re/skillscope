@@ -150,7 +150,7 @@ export default {
           <div class="d-flex align-items-start gap-3 mb-4">
             <h1
               class="test-title fw-bold flex-grow-1 mb-0"
-              :class="isLongTitle ? 'test-title-long h4' : 'text-uppercase h3'"
+              :class="isLongTitle ? 'test-title-long h4' : 'h3'"
             >
               {{ test.title }}
             </h1>
@@ -161,7 +161,7 @@ export default {
             >
               {{ inactiveStatusBadge.name }}
             </span>
-            <span class="badge rounded-pill text-bg-light border flex-shrink-0 mt-1">
+            <span class="badge rounded-pill badge-neutral flex-shrink-0 mt-1">
               {{ test.competenceLevel }}
             </span>
           </div>
@@ -321,10 +321,5 @@ export default {
   bottom: calc(100% + 0.4rem);
   right: 0;
   max-width: 16rem;
-}
-
-.badge {
-  font-weight: 500;
-  padding: 0.45em 0.9em;
 }
 </style>

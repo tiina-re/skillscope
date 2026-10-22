@@ -117,19 +117,7 @@ export default {
 }
 
 .question-card-body {
-  padding: 1.75rem 2rem;
-}
-
-@container question-card (min-width: 800px) {
-  .question-card-body {
-    padding: 2rem 3.5rem;
-  }
-}
-
-@container question-card (max-width: 599.98px) {
-  .question-card-body {
-    padding: 1.5rem 1.5rem;
-  }
+  padding: 1.5rem;
 }
 
 .question-card-header {
@@ -216,18 +204,6 @@ export default {
 }
 
 /* Mullid on sama kujuga nagu staatuse mullid (theme.css .badge-active jt) */
-.badge-competence {
-  background-color: var(--bs-info-bg-subtle);
-  color: var(--bs-info-text-emphasis);
-  border: var(--bs-border-width) solid var(--bs-info-border-subtle);
-}
-
-.badge-neutral {
-  background-color: var(--bs-gray-100);
-  color: var(--bs-gray-700);
-  border: var(--bs-border-width) solid var(--bs-gray-300);
-}
-
 .badge-icon {
   display: inline-flex;
   align-items: center;

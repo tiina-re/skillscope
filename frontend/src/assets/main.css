@@ -5,12 +5,10 @@
 a,
 .green {
   text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
+  color: var(--bs-link-color);
   transition: 0.4s;
   padding: 3px;
 }
-
-
 
 .pointer {
   cursor: pointer;
@@ -20,25 +18,8 @@ a,
   text-decoration: underline;
 }
 
-
 @media (hover: hover) {
   a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
+    background-color: rgba(var(--bs-primary-rgb), 0.1);
   }
-}
-
-.badge-active {
-  background-color: rgb(6 140 52 / 0.94);
-}
-
-.badge-inactive {
-  background-color: #96160e;
-}
-
-.badge-in-progress {
-  background-color: #deab3a;
-}
-
-.badge-completed{
-  background-color: #a13517;
 }

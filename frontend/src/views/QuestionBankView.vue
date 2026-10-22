@@ -3,6 +3,7 @@ import QuestionService from '@/services/QuestionService.js'
 import CompetenceService from '@/services/CompetenceService.js'
 import Status from '@/Status.js'
 import LoadingText from '@/components/LoadingText.vue'
+import MainTitle from '@/components/MainTitle.vue'
 import SuccessToast from '@/components/SuccessToast.vue'
 import AlertDanger from '@/components/AlertDanger.vue'
 import QuestionBankCard from '@/components/QuestionBankCard.vue'
@@ -26,6 +27,7 @@ export default {
   name: 'QuestionBankView',
   components: {
     LoadingText,
+    MainTitle,
     SuccessToast,
     AlertDanger,
     BaseModal,
@@ -227,11 +229,10 @@ export default {
 </script>
 
 <template>
-  <div class="container-fluid py-4">
+  <div class="container py-4">
     <LoadingText v-if="isLoading" />
-    <div v-else class="question-bank-content mx-auto">
-      <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
-        <h1 class="text-uppercase fw-bold h3 mb-0">Küsimuste pank</h1>
+    <div v-else class="question-bank-content">
+      <MainTitle title="Küsimuste pank">
         <button
           v-if="isAiGeneratorOpen"
           class="btn btn-light border fw-bold rounded-2 d-flex align-items-center gap-2"
@@ -288,7 +289,7 @@ export default {
             <PhArrowRight :size="16" weight="bold" />
           </button>
         </div>
-      </div>
+      </MainTitle>
 
       <div class="question-bank-slider">
         <Transition :name="contentTransitionName" mode="out-in">
@@ -303,7 +304,7 @@ export default {
               Küsimusi ei leitud
             </div>
 
-            <div class="d-flex flex-column gap-4">
+            <div class="d-flex flex-column gap-3">
               <QuestionBankCard
                 v-for="question in questions"
                 :key="question.questionId"
@@ -533,11 +534,5 @@ export default {
 /* Peidab välja libiseva sisu, et lehele ei tekiks horisontaalset kerimisriba */
 .question-bank-slider {
   overflow-x: clip;
-}
-
-@media (min-width: 992px) {
-  .question-bank-content {
-    width: 70%;
-  }
 }
 </style>

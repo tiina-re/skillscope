@@ -61,7 +61,7 @@ export default {
             <span
               v-for="level in levelsByCompetenceId[competence.competenceId]"
               :key="level.competenceLevelId"
-              class="badge rounded-pill text-bg-secondary"
+              class="badge rounded-pill badge-neutral"
               >{{ level.levelName }}</span
             >
           </span>

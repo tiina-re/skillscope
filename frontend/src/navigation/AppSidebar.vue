@@ -24,12 +24,12 @@ export default {
 
 <template>
   <aside class="sidebar-wrapper">
-    <nav class="sidebar navbar-light d-flex flex-column p-1 pt-3">
+    <nav class="sidebar navbar-light d-flex flex-column p-1 pt-3 pb-3">
       <div class="nav nav-pills flex-column">
         <p class="sidebar-label"></p>
         <RouterLink
           v-if="canSee('/dashboard')"
-          class="nav-link d-flex align-items-center gap-2"
+          class="nav-link d-flex align-items-center"
           to="/dashboard"
         >
           <PhHouse :size="20" />
@@ -37,7 +37,7 @@ export default {
         </RouterLink>
         <RouterLink
           v-if="canSee('/tests')"
-          class="nav-link d-flex align-items-center gap-2"
+          class="nav-link d-flex align-items-center"
           to="/tests"
         >
           <PhFlask :size="20" />
@@ -45,7 +45,7 @@ export default {
         </RouterLink>
         <RouterLink
           v-if="canSee('/my-tests')"
-          class="nav-link d-flex align-items-center gap-2"
+          class="nav-link d-flex align-items-center"
           to="/my-tests"
         >
           <PhPersonSimple :size="20" />
@@ -53,7 +53,7 @@ export default {
         </RouterLink>
         <RouterLink
           v-if="canSee('/tests/new')"
-          class="nav-link d-flex align-items-center gap-2"
+          class="nav-link d-flex align-items-center"
           to="/tests/new"
         >
           <PhFilePlus :size="20" />
@@ -61,7 +61,7 @@ export default {
         </RouterLink>
         <RouterLink
           v-if="canSee('/competences')"
-          class="nav-link d-flex align-items-center gap-2"
+          class="nav-link d-flex align-items-center"
           to="/competences"
         >
           <PhStack :size="20" />
@@ -69,7 +69,7 @@ export default {
         </RouterLink>
         <RouterLink
           v-if="canSee('/questions')"
-          class="nav-link d-flex align-items-center gap-2"
+          class="nav-link d-flex align-items-center"
           :class="{ 'section-active': $route.path.startsWith('/questions') }"
           to="/questions"
         >
@@ -78,7 +78,7 @@ export default {
         </RouterLink>
         <RouterLink
           v-if="canSee('/users')"
-          class="nav-link d-flex align-items-center gap-2"
+          class="nav-link d-flex align-items-center"
           to="/users"
         >
           <PhUsers :size="20" />
@@ -92,17 +92,18 @@ export default {
 <style scoped>
 .sidebar-wrapper {
   flex-shrink: 0;
-  padding: 1.5rem 0 1.5rem 1.5rem;
+  /* 2.5rem = main p-3 + container py-4 — menüü ülaserv on lehe pealkirjareaga samal kõrgusel */
+  padding: 2.5rem 0 1.5rem 1.5rem;
 }
 .nav-text {
-  text-transform: uppercase;
-  font-size: 12px;
-  font-weight: bold;
+  font-size: 0.9375rem;
+  font-weight: 600;
 }
 .sidebar {
   position: sticky;
   top: 1.5rem;
-  width: 220px;
+  /* Laius pikima menüüpunkti järgi — selle tekstil on vasakul ja paremal sama palju ruumi */
+  width: max-content;
   padding: 1.25rem 0.75rem;
   background: var(--bs-body-bg);
   border: 1px solid var(--app-surface-border);
@@ -123,8 +124,15 @@ export default {
   height: 3px;
 }
 
+.nav-pills {
+  gap: 0.25rem;
+}
+
 .nav-link {
-  padding: 0.6rem 0.75rem;
+  gap: 0.75rem;
+  /* Nähtav vaba ruum on mõlemal pool 16.5px: ikoonil on vasakul ~2px sisemist tühja äärist
+     (14.5 + 2), teksti kasti lõpus ~0.5px tühja ruumi (17 - 0.5) */
+  padding: 0.7rem 17px 0.7rem 14.5px;
   border-radius: 0.6rem;
   color: var(--bs-gray-600);
   font-weight: 500;

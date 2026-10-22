@@ -121,7 +121,7 @@ export default {
 }
 
 .answer-option.selected {
-  border-color: var(--bs-primary);
-  box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.25);
+  border-color: var(--app-selection);
+  box-shadow: 0 0 0 0.2rem rgba(var(--app-selection-rgb), 0.25);
 }
 </style>

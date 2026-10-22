@@ -55,7 +55,7 @@ export default {
 </script>
 
 <template>
-  <div class="container-fluid py-4">
+  <div class="container py-4">
     <LoadingText v-if="isLoading" />
     <div v-else-if="errorMessage" class="text-center">
       <AlertDanger :error-message="errorMessage" />
@@ -97,24 +97,7 @@ export default {
 <style scoped>
 .preview-test-card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(500px, 100%), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(22rem, 100%), 1fr));
   gap: 1rem;
-}
-@media (min-width: 1800px) {
-  .container {
-    max-width: 1760px;
-  }
-}
-
-@media (min-width: 2400px) {
-  .container {
-    max-width: 2340px;
-  }
-}
-
-@media (min-width: 3000px) {
-  .container {
-    max-width: 2900px;
-  }
 }
 </style>
