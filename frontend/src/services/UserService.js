@@ -7,8 +7,11 @@ export default {
   addUser(newUser) {
     return axios.post('/api/users', newUser)
   },
-  updateUserStatus(userId, status) {
-    return axios.patch(`/api/users/${userId}/status`, { status })
+  updateUser(userId, userUpdate) {
+    return axios.put(`/api/users/${userId}`, userUpdate)
+  },
+  activateUser(userId) {
+    return axios.patch(`/api/users/${userId}/activate`)
   },
   deleteUser(userId) {
     return axios.delete(`/api/users/${userId}`)

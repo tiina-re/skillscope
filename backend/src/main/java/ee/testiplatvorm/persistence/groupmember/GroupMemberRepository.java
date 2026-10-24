@@ -9,4 +9,7 @@ public interface GroupMemberRepository extends JpaRepository<GroupMember, Intege
     @Query("select gm from GroupMember gm join fetch gm.group")
     List<GroupMember> findAllGroupMembers();
 
+    @Query("select gm from GroupMember gm where gm.user.id = :userId")
+    List<GroupMember> findGroupMembersBy(Integer userId);
+
 }

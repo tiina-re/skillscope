@@ -16,7 +16,14 @@ public enum Error {
     NO_RESULT_FOUND("Tulemust ei leitud"),
     AI_QUESTION_ALREADY_REVIEWED("AI küsimus on juba üle vaadatud"),
     AI_QUESTION_GENERATION_FAILED("AI ei suutnud korrektseid küsimusi luua, proovi uuesti"),
-    INVALID_CORRECT_ANSWER_COUNT("Õigete vastuste arv ei vasta küsimuse tüübile");
+    INVALID_CORRECT_ANSWER_COUNT("Õigete vastuste arv ei vasta küsimuse tüübile"),
+    NO_PERMISSION_TO_MANAGE_USERS("Sul puudub õigus kasutajaid hallata"),
+    NO_PERMISSION_TO_MANAGE_GROUP("Sul puudub õigus selle grupi liikmeid muuta"),
+    CANNOT_DELETE_YOURSELF("Iseennast ei saa kustutada"),
+    CANNOT_CHANGE_OWN_ROLE("Enda rolli ei saa muuta"),
+    USER_NOT_ACTIVE("Muuta saab ainult aktiivset kasutajat"),
+    PROFILE_NOT_FOUND("Kasutaja profiili ei leitud"),
+    USER_NOT_DELETED("Aktiveerida saab ainult kustutatud kasutajat");
 
     private final String message;
 
