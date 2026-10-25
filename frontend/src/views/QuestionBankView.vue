@@ -12,10 +12,10 @@ import QuestionAnswerOption from '@/components/QuestionAnswerOption.vue'
 import BaseModal from '@/components/modal/BaseModal.vue'
 import QuestionCreateForm from '@/components/QuestionCreateForm.vue'
 import QuestionBankAiGenerator from '@/components/QuestionBankAiGenerator.vue'
+import FilterDropdown from '@/components/FilterDropdown.vue'
 import {
   PhArrowLeft,
   PhArrowRight,
-  PhCaretDown,
   PhCheckCircle,
   PhPencilSimple,
   PhPlus,
@@ -36,9 +36,9 @@ export default {
     QuestionBankTabs,
     QuestionAnswerOption,
     QuestionBankAiGenerator,
+    FilterDropdown,
     PhArrowLeft,
     PhArrowRight,
-    PhCaretDown,
     PhCheckCircle,
     PhPencilSimple,
     PhPlus,
@@ -77,41 +77,18 @@ export default {
         MULTIPLE_CHOICE: 'Mitme õige vastusega',
         TRUE_FALSE: 'Tõene või väär',
       },
-      questions: [
-        {
-          questionId: 0,
-          questionTitle: '',
-          questionDescription: '',
-          questionTypeName: '',
-          competenceId: 0,
-          competenceName: '',
-          competenceLevelName: '',
-          score: 0,
-          questionStatus: '',
-          answers: [
-            {
-              questionAnswerId: 0,
-              answerText: '',
-              correctChoice: false,
-            },
-          ],
-        },
-      ],
-      competences: [
-        {
-          competenceId: 0,
-          competenceName: '',
-        },
-      ],
+      errorMessage: '',
+      questions: [],
+      competences: [],
     }
   },
 
   computed: {
-    selectedCompetenceName() {
-      const selectedCompetence = this.competences.find(
-        (competence) => competence.competenceId === this.selectedCompetenceId,
-      )
-      return selectedCompetence ? selectedCompetence.competenceName : 'Kõik kompetentsid'
+    competenceOptions() {
+      return this.competences.map((competence) => ({
+        value: competence.competenceId,
+        label: competence.competenceName,
+      }))
     },
     // AI vaatesse minnes libiseb sisu vasakule, tagasi tulles paremale
     contentTransitionName() {
@@ -216,9 +193,10 @@ export default {
       this.getQuestionBank()
     },
     getQuestionBank() {
+      this.errorMessage = ''
       QuestionService.getQuestionBankRequest(this.selectedCompetenceId)
         .then((response) => this.handleGetQuestionBank(response))
-        .catch()
+        .catch(() => (this.errorMessage = 'Küsimuste laadimine ebaõnnestus'))
         .finally(() => (this.isLoading = false))
     },
     handleGetQuestionBank(response) {
@@ -242,37 +220,12 @@ export default {
           <span>Tagasi küsimuste panka</span>
         </button>
         <div v-else class="d-flex flex-wrap gap-2">
-          <div class="dropdown">
-            <button
-              class="btn btn-light border fw-bold rounded-2 d-flex align-items-center gap-2"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-            >
-              <span>{{ selectedCompetenceName }}</span>
-              <PhCaretDown :size="14" />
-            </button>
-            <ul class="dropdown-menu dropdown-menu-custom dropdown-menu-end">
-              <li>
-                <button
-                  class="dropdown-item"
-                  :class="{ active: selectedCompetenceId === null }"
-                  @click="selectCompetence(null)"
-                >
-                  Kõik kompetentsid
-                </button>
-              </li>
-              <li><hr class="dropdown-divider" /></li>
-              <li v-for="competence in competences" :key="competence.competenceId">
-                <button
-                  class="dropdown-item"
-                  :class="{ active: selectedCompetenceId === competence.competenceId }"
-                  @click="selectCompetence(competence.competenceId)"
-                >
-                  {{ competence.competenceName }}
-                </button>
-              </li>
-            </ul>
-          </div>
+          <FilterDropdown
+            :options="competenceOptions"
+            :selected-value="selectedCompetenceId"
+            :all-option="{ value: null, label: 'Kõik kompetentsid' }"
+            @event-option-selected="selectCompetence"
+          />
           <button
             class="btn btn-primary fw-bold rounded-2 d-flex align-items-center gap-2"
             @click="openQuestionCreateModal"
@@ -297,14 +250,16 @@ export default {
           <div v-else key="questionList">
             <QuestionBankTabs />
 
+            <AlertDanger v-if="errorMessage" :error-message="errorMessage" />
+
             <div
-              v-if="!questions.length"
+              v-else-if="!questions.length"
               class="card app-surface rounded-4 p-5 text-center text-secondary"
             >
               Küsimusi ei leitud
             </div>
 
-            <div class="d-flex flex-column gap-3">
+            <div v-else class="d-flex flex-column gap-3">
               <QuestionBankCard
                 v-for="question in questions"
                 :key="question.questionId"
@@ -510,13 +465,6 @@ export default {
 </template>
 
 <style scoped>
-.dropdown-menu-custom {
-  --bs-dropdown-min-width: 12rem;
-  --bs-dropdown-bg: var(--bs-gray-100);
-  --bs-dropdown-border-radius: 0.75rem;
-  --bs-dropdown-link-color: var(--bs-emphasis-color);
-}
-
 /* AI nupp kasutab samu kollaseid toone nagu .badge-in-progress (theme.css) */
 .btn-ai {
   --bs-btn-color: var(--bs-warning-text-emphasis);

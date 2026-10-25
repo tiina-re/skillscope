@@ -7,7 +7,7 @@ See fail on jätkamiseks Claude Code'i sessioonis (nt IntelliJ-s). Loe see läbi
 1. Õppida backendi teste kirjutama (JUnit 5 + Mockito + AssertJ). Kõik vajalik on juba olemas `spring-boot-starter-test` kaudu, uusi sõltuvusi ei ole vaja.
 2. Katta testidega minu (Tiina) enda kirjutatud kood: testi loomine (`TestService`) ja küsimuste pank (`QuestionService`, hiljem AI küsimuste pank).
 
-**Seis:** sammud 1–7 on tehtud, kokku 92 testi — `QuestionServiceTest` (18), `TestServiceTest` (8), `ResultServiceTest` (12), `TestAttemptServiceTest` (16), `TestControllerTest` (3), `AiQuestionServiceTest` (15), `AiQuestionBankServiceTest` (8) ja `UserServiceTest` (12). Täpne nimekiri, mida testid katavad, on testide nimedes (`meetod_olukord_tulemus`); siin on kirjas ainult see, mida nimedest välja ei loe.
+**Seis:** sammud 1–8 on tehtud, kokku 95 testi — `QuestionServiceTest` (18), `TestServiceTest` (11), `ResultServiceTest` (12), `TestAttemptServiceTest` (16), `TestControllerTest` (3), `AiQuestionServiceTest` (15), `AiQuestionBankServiceTest` (8) ja `UserServiceTest` (12). Täpne nimekiri, mida testid katavad, on testide nimedes (`meetod_olukord_tulemus`); siin on kirjas ainult see, mida nimedest välja ei loe.
 
 ## Kuidas Claude peab aitama (tähtis!)
 
@@ -69,7 +69,7 @@ Märkused:
 Märkused:
 - Tehtud TDD-ga: õiguste testid kirjutati enne ja olid punased, siis lisati `QuestionService`-i `validateUserCanManageQuestions()` (vt leitud viga nr 2).
 - Reegel: küsimusi ja teste näevad, muudavad ja kustutavad ainult `ADMIN` ja `HALDUR`. Tavakasutaja näeb ainult oma gruppi ja talle määratud testide infot.
-- Ei ole testitud: `TestService.findAllTests` ja `findTestStartInfo`.
+- Ei ole testitud: `TestService.findTestStartInfo` (`findAllTestsBy` testid on sammus 8).
 - `QuestionController`-i Swaggeri kirjeldustes puudub uute kontrollide `403` vastus.
 
 ### ✅ Samm 4: `ResultService.calculateUserResultPercentage` ja `TestAttemptService.submitTest` (Claude pakkus juhtumid, mina vaatasin üle)
@@ -121,6 +121,16 @@ Märkused:
 - Reegel „iga kasutaja peab kuuluma vähemalt ühte gruppi“ kehtib ainult DTO tasemel (`@NotEmpty groupIds`), teenuse unit test seda ei näe. Selleks oleks vaja kontrolleri testi nagu sammus 5.
 - Ei ole testitud: `findAllUsers`, HALDUR-i enda nime muutmine, profiiliga kasutaja aktiveerimine (`"A"`), `GroupService.findManagedGroups`.
 
+### ✅ Samm 8: testide nimekiri kompetentsi filtriga (`TestService.findAllTestsBy`) (Claude kirjutas, mina vaatan üle)
+
+- Valitud kompetents (`competenceId`) jõuab päringuni ja tulemus tagastatakse; ilma kompetentsita (`null`) tagastatakse kõik testid
+- ADMIN ja HALDUR näevad nimekirja, tavakasutaja → `ForbiddenException` ja andmebaasi ei pöörduta
+
+Märkused:
+- Tehtud TDD-ga: õiguste test kirjutati enne ja oli punane, siis lisati `validateUserCanViewTests()` (vt leitud viga nr 11).
+- Filtreerimine ise on JPQL päringus (`TestRepository.findAllTestsBy`: `:competenceId is null or t.competence.id = :competenceId`), unit test seda ei näe — selleks oleks vaja integratsioonitesti.
+- Filtri test on kontrollitud koodi murdmisega (`competenceId` asemel `null` → punane).
+
 Frontendi testid (Vitest) on eraldi teema, nendega hiljem.
 
 ## Koodi lugedes leitud võimalikud vead (meeskonnaga üle arutada)
@@ -137,6 +147,7 @@ Need sobivad hästi testjuhtumiteks: kirjuta test oodatud käitumise jaoks ja va
 8. ✅ **Parandatud.** **`AiQuestionBankService` ei kontrollinud rolli** — iga tavakasutaja sai AI küsimusi vaadata ja kinnitada (kinnitatud küsimus läheb päris küsimuste panka). Ka frontendis puudus `questions/ai` lehel `meta: STAFF`.
 9. ✅ **Parandatud.** **AI `TRUE_FALSE` küsimus võis olla 3+ vastusega** — `AiQuestionService.isValidQuestion` kontrollis ainult õigete vastuste arvu, mitte vastuste koguarvu.
 10. ✅ **Parandatud (TDD).** **`ResultService.findTestResult` näitas igale kasutajale iga tulemust** — URL-is `userTestId` muutes sai vaadata võõraid tulemusi. Nüüd näeb tavakasutaja ainult enda tulemust, `ADMIN` ja `HALDUR` kõiki. Võõra tulemuse korral tuleb sama viga mis puuduva korral (`NO_RESULT_FOUND`), et ei saaks ära arvata, kas see on olemas.
+11. ✅ **Parandatud (TDD).** **`GET /api/tests` (`TestService.findAllTests`) ei kontrollinud rolli** — frontendis on testide leht ainult `ADMIN`-ile ja `HALDUR`-ile, aga API kaudu sai testide nimekirja iga sisseloginud kasutaja. Nüüd `403` (`NO_PERMISSION_TO_VIEW_TEST`) nagu testi detailil.
 
 ## Edasi
 

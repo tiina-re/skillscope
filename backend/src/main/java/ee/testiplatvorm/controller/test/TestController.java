@@ -26,12 +26,19 @@ public class TestController {
     private final TestService testService;
 
     @GetMapping("/tests")
-    @Operation(summary = "Tagastab andmebaasist kõik testid.")
-    @ApiResponse(
-            responseCode = "200", description = "OK"
-    )
-    public List<TestSummaryDto> findAllTests() {
-        List<TestSummaryDto> testSummaryDtos = testService.findAllTests();
+    @Operation(summary = "Tagastab andmebaasist kõik testid. competenceId on valikuline - kui see puudub, tagastatakse kõigi kompetentside testid.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200", description = "OK"
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Kui kasutaja roll ei ole ADMIN ega HALDUR, siis 'message': Sul puudub õigus testi vaadata, 'errorCode': NO_PERMISSION_TO_VIEW_TEST",
+                    content = @Content(schema = @Schema(implementation = ApiError.class))
+            )
+    })
+    public List<TestSummaryDto> findAllTestsBy(@RequestParam(required = false) Integer competenceId) {
+        List<TestSummaryDto> testSummaryDtos = testService.findAllTestsBy(competenceId);
         return testSummaryDtos;
     }
 

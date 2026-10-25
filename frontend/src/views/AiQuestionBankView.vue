@@ -9,7 +9,8 @@ import StarRating from '@/components/StarRating.vue'
 import SuccessToast from '@/components/SuccessToast.vue'
 import AlertDanger from '@/components/AlertDanger.vue'
 import BaseModal from '@/components/modal/BaseModal.vue'
-import { PhCaretDown, PhCheck, PhClipboardText, PhSparkle, PhX } from '@phosphor-icons/vue'
+import FilterDropdown from '@/components/FilterDropdown.vue'
+import { PhCheck, PhClipboardText, PhSparkle, PhX } from '@phosphor-icons/vue'
 
 export default {
   name: 'AiQuestionBankView',
@@ -23,7 +24,7 @@ export default {
     SuccessToast,
     AlertDanger,
     BaseModal,
-    PhCaretDown,
+    FilterDropdown,
     PhCheck,
     PhClipboardText,
     PhSparkle,
@@ -58,43 +59,23 @@ export default {
         MULTIPLE_CHOICE: 'Mitme õige vastusega',
         TRUE_FALSE: 'Tõene või väär',
       },
-      aiQuestions: [
-        {
-          aiQuestionId: 0,
-          questionTitle: '',
-          questionDescription: '',
-          questionTypeName: '',
-          competenceId: 0,
-          competenceName: '',
-          competenceLevelName: '',
-          score: null,
-          aiQuestionStatus: '',
-          feedback: null,
-          createdAt: '',
-          answers: [
-            {
-              aiQuestionAnswerId: 0,
-              answerText: '',
-              correctChoice: false,
-            },
-          ],
-        },
-      ],
+      errorMessage: '',
+      aiQuestions: [],
     }
   },
 
   computed: {
-    selectedStatusName() {
-      const selectedStatus = this.getAiQuestionStatusBy(this.selectedStatus)
-      return selectedStatus ? selectedStatus.name : 'Kõik staatused'
+    statusOptions() {
+      return this.aiQuestionStatuses.map((status) => ({ value: status.code, label: status.name }))
     },
   },
 
   methods: {
     getAiQuestions() {
+      this.errorMessage = ''
       AiQuestionService.getAiQuestionsRequest(this.selectedStatus)
         .then((response) => this.handleGetAiQuestions(response))
-        .catch()
+        .catch(() => (this.errorMessage = 'AI küsimuste laadimine ebaõnnestus'))
         .finally(() => (this.isLoading = false))
     },
     handleGetAiQuestions(response) {
@@ -150,42 +131,19 @@ export default {
     <LoadingText v-if="isLoading" />
     <div v-else class="question-bank-content">
       <MainTitle title="Küsimuste pank">
-        <div class="dropdown">
-          <button
-            class="btn btn-light border fw-bold rounded-2 d-flex align-items-center gap-2"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-          >
-            <span>{{ selectedStatusName }}</span>
-            <PhCaretDown :size="14" />
-          </button>
-          <ul class="dropdown-menu dropdown-menu-custom dropdown-menu-end">
-            <li v-for="status in aiQuestionStatuses" :key="status.code">
-              <button
-                class="dropdown-item"
-                :class="{ active: selectedStatus === status.code }"
-                @click="selectStatus(status.code)"
-              >
-                {{ status.name }}
-              </button>
-            </li>
-            <li><hr class="dropdown-divider" /></li>
-            <li>
-              <button
-                class="dropdown-item"
-                :class="{ active: selectedStatus === null }"
-                @click="selectStatus(null)"
-              >
-                Kõik staatused
-              </button>
-            </li>
-          </ul>
-        </div>
+        <FilterDropdown
+          :options="statusOptions"
+          :selected-value="selectedStatus"
+          :all-option="{ value: null, label: 'Kõik staatused' }"
+          @event-option-selected="selectStatus"
+        />
       </MainTitle>
 
       <QuestionBankTabs ref="questionBankTabs" />
 
-      <div v-if="!aiQuestions.length" class="card app-surface rounded-4 p-5 text-center">
+      <AlertDanger v-if="errorMessage" :error-message="errorMessage" />
+
+      <div v-else-if="!aiQuestions.length" class="card app-surface rounded-4 p-5 text-center">
         <PhSparkle :size="40" class="empty-icon mx-auto mb-3" />
         <h2 class="h5 fw-bold mb-2">AI küsimusi ei leitud</h2>
         <p class="text-secondary mb-0">
@@ -193,7 +151,7 @@ export default {
         </p>
       </div>
 
-      <div class="d-flex flex-column gap-3">
+      <div v-else class="d-flex flex-column gap-3">
         <QuestionBankCard
           v-for="aiQuestion in aiQuestions"
           :key="aiQuestion.aiQuestionId"
@@ -315,12 +273,5 @@ export default {
 
 .empty-icon {
   color: var(--bs-primary);
-}
-
-.dropdown-menu-custom {
-  --bs-dropdown-min-width: 12rem;
-  --bs-dropdown-bg: var(--bs-gray-100);
-  --bs-dropdown-border-radius: 0.75rem;
-  --bs-dropdown-link-color: var(--bs-emphasis-color);
 }
 </style>

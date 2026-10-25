@@ -3,6 +3,7 @@ package ee.testiplatvorm.service;
 import ee.testiplatvorm.controller.test.dto.TestCreateRequestDto;
 import ee.testiplatvorm.controller.test.dto.TestDetailDto;
 import ee.testiplatvorm.controller.test.dto.TestQuestionDto;
+import ee.testiplatvorm.controller.test.dto.TestSummaryDto;
 import ee.testiplatvorm.infrastructure.exception.ForbiddenException;
 import ee.testiplatvorm.infrastructure.exception.PrimaryKeyNotFoundException;
 import ee.testiplatvorm.persistence.Profile;
@@ -286,6 +287,50 @@ class TestServiceTest {
         // Act + Assert
         assertThatThrownBy(() -> testService.findTestDetail(99))
                 .isInstanceOf(PrimaryKeyNotFoundException.class);
+    }
+
+    // Kompetentsi järgi filtreerimine ise on JPQL päringus (TestRepository), unit test kontrollib,
+    // et valitud kompetents jõuab päringuni ja tulemus tagastatakse
+    @Test
+    void findAllTestsBy_competenceId_returnsTestsOfThatCompetence() {
+        // Arrange
+        mockCurrentUserWithRole("ADMIN");
+        List<ee.testiplatvorm.persistence.test.Test> tests = List.of(new ee.testiplatvorm.persistence.test.Test());
+        TestSummaryDto testSummaryDto = new TestSummaryDto();
+        when(testRepository.findAllTestsBy(5)).thenReturn(tests);
+        when(testMapper.toTestSummaryDtos(tests)).thenReturn(List.of(testSummaryDto));
+
+        // Act
+        List<TestSummaryDto> testSummaryDtos = testService.findAllTestsBy(5);
+
+        // Assert
+        assertThat(testSummaryDtos).containsExactly(testSummaryDto);
+        verify(testRepository).findAllTestsBy(5);
+    }
+
+    @Test
+    void findAllTestsBy_haldurWithoutCompetenceId_returnsAllTests() {
+        // Arrange
+        mockCurrentUserWithRole("HALDUR");
+        when(testRepository.findAllTestsBy(null)).thenReturn(List.of());
+
+        // Act
+        testService.findAllTestsBy(null);
+
+        // Assert
+        verify(testRepository).findAllTestsBy(null);
+    }
+
+    @Test
+    void findAllTestsBy_userWithoutPermission_throwsForbiddenException() {
+        // Arrange
+        mockCurrentUserWithRole("KASUTAJA");
+
+        // Act + Assert
+        assertThatThrownBy(() -> testService.findAllTestsBy(null))
+                .isInstanceOf(ForbiddenException.class);
+
+        verify(testRepository, never()).findAllTestsBy(any());
     }
 
 }

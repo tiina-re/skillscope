@@ -49,8 +49,9 @@ public class TestService {
     private final UserService userService;
     private final ProfileRepository profileRepository;
 
-    public List<TestSummaryDto> findAllTests() {
-        List<Test> tests = testRepository.findAll();
+    public List<TestSummaryDto> findAllTestsBy(Integer competenceId) {
+        validateUserCanViewTests();
+        List<Test> tests = testRepository.findAllTestsBy(competenceId);
         List<TestSummaryDto> testSummaryDtos = testMapper.toTestSummaryDtos(tests);
         return testSummaryDtos;
     }

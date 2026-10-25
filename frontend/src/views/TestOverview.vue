@@ -1,38 +1,56 @@
 <script>
 import TestService from '@/services/TestService.js'
+import CompetenceService from '@/services/CompetenceService.js'
 import NavigationService from '@/services/NavigationService.js'
 import Status from '@/Status.js'
 import PreviewCard from '@/components/PreviewCard.vue'
 import LoadingText from '@/components/LoadingText.vue'
 import MainTitle from '@/components/MainTitle.vue'
+import FilterDropdown from '@/components/FilterDropdown.vue'
+import AlertDanger from '@/components/AlertDanger.vue'
 
 export default {
   name: 'TestOverview',
-  components: { LoadingText, PreviewCard, MainTitle },
+  components: { LoadingText, PreviewCard, MainTitle, FilterDropdown, AlertDanger },
 
   beforeMount() {
+    this.getCompetences()
     this.getAllTests()
   },
 
   data() {
     return {
       isLoading: true,
+      selectedCompetenceId: null,
+      competences: [],
+      errorMessage: '',
       testStatus: Status,
-      testSummaries: [
-        {
-          testId: 0,
-          testName: '',
-          testShortDescription: '',
-          testStatus: '',
-        },
-      ],
+      testSummaries: [],
     }
   },
+  computed: {
+    competenceOptions() {
+      return this.competences.map((competence) => ({
+        value: competence.competenceId,
+        label: competence.competenceName,
+      }))
+    },
+  },
   methods: {
-    getAllTests() {
-      TestService.getAllTests()
-        .then((response) => this.handleGetAllTests(response))
+    getCompetences() {
+      CompetenceService.getCompetencesRequest()
+        .then((response) => (this.competences = response.data))
         .catch()
+    },
+    selectCompetence(competenceId) {
+      this.selectedCompetenceId = competenceId
+      this.getAllTests()
+    },
+    getAllTests() {
+      this.errorMessage = ''
+      TestService.getAllTests(this.selectedCompetenceId)
+        .then((response) => this.handleGetAllTests(response))
+        .catch(() => (this.errorMessage = 'Testide laadimine ebaõnnestus'))
         .finally(() => (this.isLoading = false))
     },
     handleGetAllTests(response) {
@@ -51,8 +69,17 @@ export default {
   <div class="container py-4">
     <LoadingText v-if="isLoading" />
     <div v-else>
-      <MainTitle title="Testid" />
-      <div class="preview-test-card-grid">
+      <MainTitle title="Testid">
+        <FilterDropdown
+          :options="competenceOptions"
+          :selected-value="selectedCompetenceId"
+          :all-option="{ value: null, label: 'Kõik kompetentsid' }"
+          @event-option-selected="selectCompetence"
+        />
+      </MainTitle>
+      <AlertDanger v-if="errorMessage" :error-message="errorMessage" />
+      <p v-else-if="testSummaries.length === 0" class="text-body-secondary">Teste ei leitud</p>
+      <div v-else class="preview-test-card-grid">
         <PreviewCard
           v-for="testSummary in testSummaries"
           :key="testSummary.testId"
