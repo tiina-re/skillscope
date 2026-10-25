@@ -25,4 +25,13 @@ public class GroupController {
     public List<GroupResponse> findActiveGroups() {
         return groupService.findActiveGroups();
     }
+
+    @GetMapping("/api/groups/managed")
+    @Operation(summary = "Tagastab sisseloginud kasutaja hallatavate gruppide id-d (tabelist group_manager).")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK")
+    })
+    public List<Integer> findCurrentUserManagedGroupIds() {
+        return groupService.findCurrentUserManagedGroupIds();
+    }
 }

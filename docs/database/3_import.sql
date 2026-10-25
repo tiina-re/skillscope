@@ -140,7 +140,11 @@ VALUES (1, 1, 2, 'A'), -- manager manages Frontend
 INSERT INTO group_member (id, group_id, user_id, added_by, created_at, updated_at)
 VALUES (1, 1, 3, 2, now() - interval '29 days', now() - interval '29 days'),
        (2, 2, 3, 2, now() - interval '20 days', now() - interval '20 days'),
-       (3, 1, 1, 2, now() - interval '89 days', now() - interval '89 days');
+       (3, 1, 1, 2, now() - interval '89 days', now() - interval '89 days'),
+       -- iga kasutaja peab kuuluma vähemalt ühte gruppi
+       (10, 1, 2, 1, now() - interval '60 days', now() - interval '60 days'),
+       (11, 2, 2, 1, now() - interval '60 days', now() - interval '60 days'),
+       (12, 1, 4, 1, now() - interval '2 days', now() - interval '2 days');
 
 -- ------------------------------------------------------------
 -- invitation

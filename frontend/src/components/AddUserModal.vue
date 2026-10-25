@@ -21,8 +21,10 @@ export default {
       isSaving: false,
       isPasswordVisible: false,
       errorMessage: '',
+      isAdmin: sessionStorage.getItem('roleName') === 'ADMIN',
       roles: [],
       groups: [],
+      managedGroupIds: [],
       newUser: {
         firstName: '',
         lastName: '',
@@ -32,6 +34,19 @@ export default {
         groupIds: [],
       },
     }
+  },
+
+  computed: {
+    // HALDUR saab anda ainult KASUTAJA rolli
+    availableRoles() {
+      return this.isAdmin ? this.roles : this.roles.filter((role) => role.roleName === 'KASUTAJA')
+    },
+    // HALDUR saab lisada ainult oma hallatavatesse gruppidesse
+    availableGroups() {
+      return this.isAdmin
+        ? this.groups
+        : this.groups.filter((group) => this.managedGroupIds.includes(group.groupId))
+    },
   },
 
   watch: {
@@ -53,11 +68,18 @@ export default {
         .then((response) => (this.groups = response.data))
         .catch(() => (this.errorMessage = 'Gruppide laadimine ebaõnnestus'))
     },
+    getManagedGroupIds() {
+      GroupService.getManagedGroupIds()
+        .then((response) => (this.managedGroupIds = response.data))
+        .catch(() => (this.errorMessage = 'Hallatavate gruppide laadimine ebaõnnestus'))
+    },
     addUser() {
       this.isSaving = true
       this.errorMessage = ''
       UserService.addUser(this.newUser)
-        .then(() => this.$emit('event-user-added'))
+        .then((response) =>
+          this.$emit('event-user-added', this.newUser.email, response.data.restored),
+        )
         .catch((error) => this.handleAddUserError(error))
         .finally(() => (this.isSaving = false))
     },
@@ -81,6 +103,9 @@ export default {
   beforeMount() {
     this.getAllRoles()
     this.getActiveGroups()
+    if (!this.isAdmin) {
+      this.getManagedGroupIds()
+    }
   },
 }
 </script>
@@ -155,16 +180,16 @@ export default {
           <label for="add-user-role" class="form-label fw-semibold">Roll</label>
           <select id="add-user-role" v-model="newUser.roleId" class="form-select" required>
             <option :value="null" disabled>-- Vali roll --</option>
-            <option v-for="role in roles" :key="role.roleId" :value="role.roleId">
+            <option v-for="role in availableRoles" :key="role.roleId" :value="role.roleId">
               {{ role.roleName }}
             </option>
           </select>
         </div>
         <div class="mt-3">
           <span class="form-label fw-semibold d-block">Grupid</span>
-          <div v-if="groups.length > 0" class="d-flex flex-wrap gap-2">
+          <div v-if="availableGroups.length > 0" class="d-flex flex-wrap gap-2">
             <label
-              v-for="group in groups"
+              v-for="group in availableGroups"
               :key="group.groupId"
               class="group-option rounded-pill d-inline-flex align-items-center gap-1"
               :class="{ selected: newUser.groupIds.includes(group.groupId) }"
@@ -179,8 +204,12 @@ export default {
               {{ group.groupName }}
             </label>
           </div>
-          <div v-else class="text-body-secondary">Aktiivseid gruppe pole</div>
-          <div class="form-text">Valikuline. Võid valida mitu gruppi.</div>
+          <div v-else-if="isAdmin" class="text-body-secondary">Aktiivseid gruppe pole</div>
+          <div v-else class="text-body-secondary">
+            Sa ei halda ühtegi gruppi, seega ei saa sa kasutajaid lisada. Grupi halduriks saab sind
+            määrata admin.
+          </div>
+          <div class="form-text">Vali vähemalt üks grupp. Võid valida mitu.</div>
         </div>
       </form>
     </template>
@@ -192,7 +221,7 @@ export default {
         type="submit"
         form="add-user-form"
         class="btn btn-primary fw-bold rounded-2"
-        :disabled="isSaving"
+        :disabled="isSaving || newUser.groupIds.length === 0"
       >
         {{ isSaving ? 'Lisan...' : 'Lisa kasutaja' }}
       </button>

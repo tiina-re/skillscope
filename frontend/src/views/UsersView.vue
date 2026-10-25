@@ -4,7 +4,17 @@ import Status from '@/Status.js'
 import LoadingText from '@/components/LoadingText.vue'
 import AlertDanger from '@/components/AlertDanger.vue'
 import AddUserModal from '@/components/AddUserModal.vue'
-import { PhCaretDown, PhCheck, PhTrash, PhUserPlus } from '@phosphor-icons/vue'
+import EditUserModal from '@/components/EditUserModal.vue'
+import BaseModal from '@/components/modal/BaseModal.vue'
+import SuccessToast from '@/components/SuccessToast.vue'
+import {
+  PhArrowCounterClockwise,
+  PhDotsThree,
+  PhMagnifyingGlass,
+  PhPencilSimple,
+  PhTrash,
+  PhUserPlus,
+} from '@phosphor-icons/vue'
 import MainTitle from '@/components/MainTitle.vue'
 
 export default {
@@ -14,8 +24,13 @@ export default {
     LoadingText,
     AlertDanger,
     AddUserModal,
-    PhCaretDown,
-    PhCheck,
+    EditUserModal,
+    BaseModal,
+    SuccessToast,
+    PhArrowCounterClockwise,
+    PhDotsThree,
+    PhMagnifyingGlass,
+    PhPencilSimple,
     PhTrash,
     PhUserPlus,
   },
@@ -24,16 +39,30 @@ export default {
     return {
       isLoading: true,
       isAddUserModalOpen: false,
+      isDeleting: false,
+      isActivating: false,
       errorMessage: '',
+      deleteErrorMessage: '',
+      activateErrorMessage: '',
+      successMessage: '',
+      isAdmin: sessionStorage.getItem('roleName') === 'ADMIN',
+      currentUserId: Number(sessionStorage.getItem('userId')),
+      userToEdit: null,
+      userToDelete: null,
+      userToActivate: null,
+      searchText: '',
+      // 'all' - kõik, muidu staatuse kood (A, P, I)
+      statusFilter: 'all',
       userStatus: Status,
-      statusCodes: ['A', 'P', 'I'],
       users: [
         {
           userId: 0,
           firstName: '',
           lastName: '',
           email: '',
+          groupIds: [],
           groupNames: [],
+          roleId: 0,
           roleName: '',
           status: '',
         },
@@ -41,7 +70,31 @@ export default {
     }
   },
 
+  computed: {
+    // Otsing vaatab nime, e-posti, rolli ja gruppe. Staatust ei vaata, sest "aktiivne" leiaks ka "Mitteaktiivne".
+    filteredUsers() {
+      const searchText = this.searchText.trim().toLowerCase()
+      return this.users.filter((user) => {
+        if (!this.isStatusMatching(user)) {
+          return false
+        }
+        const searchableText = [
+          this.getFullName(user),
+          user.email,
+          user.roleName,
+          ...user.groupNames,
+        ]
+          .join(' ')
+          .toLowerCase()
+        return searchableText.includes(searchText)
+      })
+    },
+  },
+
   methods: {
+    isStatusMatching(user) {
+      return this.statusFilter === 'all' || user.status === this.statusFilter
+    },
     getAllUsers() {
       UserService.getAllUsers()
         .then((response) => this.handleGetAllUsers(response))
@@ -52,25 +105,79 @@ export default {
       this.errorMessage = ''
       this.users = response.data
     },
-    handleError(error, defaultMessage) {
-      this.errorMessage = error.response?.data?.message ?? defaultMessage
-    },
-    handleUserAdded() {
+    // restored = true, kui sama e-postiga kustutatud kasutaja taastati
+    handleUserAdded(email, restored) {
+      this.successMessage = restored
+        ? `Kustutatud kasutaja ${email} taastati`
+        : `Kasutaja ${email} on lisatud`
       this.isAddUserModalOpen = false
       this.getAllUsers()
     },
-    updateUserStatus(user, status) {
-      UserService.updateUserStatus(user.userId, status)
-        .then(() => this.getAllUsers())
-        .catch((error) => this.handleError(error, 'Staatuse muutmine ebaõnnestus'))
+    handleUserUpdated() {
+      this.successMessage = `Kasutaja ${this.userToEdit.email} on muudetud`
+      this.userToEdit = null
+      this.getAllUsers()
     },
-    deleteUser(user) {
-      if (!confirm(`Kas soovid kasutaja ${user.email} kustutada?`)) {
-        return
-      }
-      UserService.deleteUser(user.userId)
-        .then(() => this.getAllUsers())
-        .catch((error) => this.handleError(error, 'Kasutaja kustutamine ebaõnnestus'))
+    // Muuta saab ainult aktiivset kasutajat. HALDUR ei saa muuta ADMIN-it.
+    canEdit(user) {
+      return user.status === 'A' && (this.isAdmin || user.roleName !== 'ADMIN')
+    },
+    // Kustutada saab ainult ADMIN ja mitte iseennast
+    canDelete(user) {
+      return this.isAdmin && user.status !== 'I' && user.userId !== this.currentUserId
+    },
+    // Aktiveerida saab ainult ADMIN ja ainult kustutatud kasutajat
+    canActivate(user) {
+      return this.isAdmin && user.status === 'I'
+    },
+    hasActions(user) {
+      return this.canEdit(user) || this.canDelete(user) || this.canActivate(user)
+    },
+    openActivateConfirmation(user) {
+      this.activateErrorMessage = ''
+      this.userToActivate = user
+    },
+    closeActivateConfirmation() {
+      this.userToActivate = null
+    },
+    activateUser() {
+      this.isActivating = true
+      UserService.activateUser(this.userToActivate.userId)
+        .then(() => this.handleActivateUser())
+        .catch((error) => this.handleActivateUserError(error))
+        .finally(() => (this.isActivating = false))
+    },
+    handleActivateUser() {
+      this.successMessage = `Kasutaja ${this.userToActivate.email} on aktiveeritud`
+      this.closeActivateConfirmation()
+      this.getAllUsers()
+    },
+    handleActivateUserError(error) {
+      this.activateErrorMessage =
+        error.response?.data?.message ?? 'Kasutaja aktiveerimine ebaõnnestus. Proovi uuesti.'
+    },
+    openDeleteConfirmation(user) {
+      this.deleteErrorMessage = ''
+      this.userToDelete = user
+    },
+    closeDeleteConfirmation() {
+      this.userToDelete = null
+    },
+    deleteUser() {
+      this.isDeleting = true
+      UserService.deleteUser(this.userToDelete.userId)
+        .then(() => this.handleDeleteUser())
+        .catch((error) => this.handleDeleteUserError(error))
+        .finally(() => (this.isDeleting = false))
+    },
+    handleDeleteUser() {
+      this.successMessage = `Kasutaja ${this.userToDelete.email} on kustutatud`
+      this.closeDeleteConfirmation()
+      this.getAllUsers()
+    },
+    handleDeleteUserError(error) {
+      this.deleteErrorMessage =
+        error.response?.data?.message ?? 'Kasutaja kustutamine ebaõnnestus. Proovi uuesti.'
     },
     hasName(user) {
       return user.firstName !== null || user.lastName !== null
@@ -106,106 +213,217 @@ export default {
         </button>
       </MainTitle>
       <AlertDanger :error-message="errorMessage" />
-      <div class="card app-surface rounded-4">
-        <div class="table-responsive">
-          <table class="table table-hover align-middle mb-0">
-            <thead>
-              <tr>
-                <th class="ps-4">Nimi</th>
-                <th>E-post</th>
-                <th>Roll</th>
-                <th>Grupid</th>
-                <th>Staatus</th>
-                <th class="pe-4"></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="user in users" :key="user.userId">
-                <td class="ps-4">
-                  <div class="d-flex align-items-center gap-3">
-                    <span class="user-avatar rounded-circle flex-shrink-0">
-                      {{ getInitials(user) }}
-                    </span>
-                    <span v-if="hasName(user)" class="fw-semibold">{{ getFullName(user) }}</span>
-                    <span v-else class="text-body-secondary fst-italic">Registreerimata</span>
-                  </div>
-                </td>
-                <td>{{ user.email }}</td>
-                <td>{{ user.roleName }}</td>
-                <td>
-                  <div class="d-flex flex-wrap gap-1">
-                    <span
-                      v-for="groupName in user.groupNames"
-                      :key="groupName"
-                      class="badge rounded-pill badge-group"
-                    >
-                      {{ groupName }}
-                    </span>
-                    <span v-if="user.groupNames.length === 0" class="text-body-secondary">—</span>
-                  </div>
-                </td>
-                <td>
-                  <div class="dropdown">
-                    <button
-                      class="btn btn-sm p-0 border-0 d-inline-flex align-items-center gap-1"
-                      data-bs-toggle="dropdown"
-                      data-bs-popper-config='{"strategy":"fixed"}'
-                      title="Muuda staatust"
-                    >
-                      <span
-                        class="badge rounded-pill"
-                        :class="userStatus[user.status]?.badgeClass ?? 'badge-neutral'"
-                      >
-                        {{ userStatus[user.status]?.name ?? user.status }}
-                      </span>
-                      <PhCaretDown :size="14" class="text-body-secondary" />
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-custom">
-                      <li v-for="statusCode in statusCodes" :key="statusCode">
-                        <button
-                          class="dropdown-item d-flex align-items-center justify-content-between gap-2"
-                          :disabled="statusCode === user.status"
-                          @click="updateUserStatus(user, statusCode)"
-                        >
-                          <span
-                            class="badge rounded-pill"
-                            :class="userStatus[statusCode].badgeClass"
-                          >
-                            {{ userStatus[statusCode].name }}
-                          </span>
-                          <PhCheck v-if="statusCode === user.status" :size="16" />
-                        </button>
-                      </li>
-                    </ul>
-                  </div>
-                </td>
-                <td class="pe-4 text-end">
-                  <button
-                    v-if="user.status !== 'I'"
-                    class="btn btn-sm btn-delete rounded-2 d-inline-flex align-items-center gap-1"
-                    @click="deleteUser(user)"
-                  >
-                    <PhTrash :size="16" />
-                    Kustuta
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+      <!-- Laadimise vea korral ei näidata tabelit, muidu jääks sinna data() näidiskasutaja -->
+      <template v-if="errorMessage === ''">
+        <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
+          <div class="input-group search-input">
+            <span class="input-group-text"><PhMagnifyingGlass :size="18" /></span>
+            <input
+              v-model="searchText"
+              type="search"
+              class="form-control"
+              placeholder="Otsi nime, e-posti, rolli või grupi järgi"
+              aria-label="Otsi kasutajaid"
+            />
+          </div>
+          <select v-model="statusFilter" class="form-select status-filter" aria-label="Staatus">
+            <option value="all">Kõik</option>
+            <option v-for="statusCode in ['A', 'P', 'I']" :key="statusCode" :value="statusCode">
+              {{ userStatus[statusCode].name }}
+            </option>
+          </select>
         </div>
-      </div>
+        <div class="card app-surface rounded-4">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead>
+                <tr>
+                  <th class="ps-4">Nimi</th>
+                  <th>E-post</th>
+                  <th>Roll</th>
+                  <th>Grupid</th>
+                  <th>Staatus</th>
+                  <th class="pe-4"></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-if="filteredUsers.length === 0">
+                  <td colspan="6" class="text-center text-body-secondary py-5">
+                    Kasutajaid ei leitud
+                  </td>
+                </tr>
+                <tr v-for="user in filteredUsers" :key="user.userId">
+                  <td class="ps-4">
+                    <div class="d-flex align-items-center gap-3">
+                      <span class="user-avatar rounded-circle flex-shrink-0">
+                        {{ getInitials(user) }}
+                      </span>
+                      <span v-if="hasName(user)" class="fw-semibold">{{ getFullName(user) }}</span>
+                      <span v-else class="text-body-secondary fst-italic">Registreerimata</span>
+                    </div>
+                  </td>
+                  <td>{{ user.email }}</td>
+                  <td>{{ user.roleName }}</td>
+                  <td>
+                    <div class="d-flex flex-wrap gap-1">
+                      <span
+                        v-for="groupName in user.groupNames"
+                        :key="groupName"
+                        class="badge rounded-pill badge-group"
+                      >
+                        {{ groupName }}
+                      </span>
+                      <span v-if="user.groupNames.length === 0" class="text-body-secondary">—</span>
+                    </div>
+                  </td>
+                  <td>
+                    <span
+                      class="badge rounded-pill"
+                      :class="userStatus[user.status]?.badgeClass ?? 'badge-neutral'"
+                    >
+                      {{ userStatus[user.status]?.name ?? user.status }}
+                    </span>
+                  </td>
+                  <td class="pe-4 text-end">
+                    <div v-if="hasActions(user)" class="dropdown">
+                      <button
+                        class="btn btn-sm menu-button"
+                        data-bs-toggle="dropdown"
+                        data-bs-popper-config='{"strategy":"fixed"}'
+                        aria-expanded="false"
+                        aria-label="Kasutaja tegevused"
+                      >
+                        <PhDotsThree :size="18" />
+                      </button>
+                      <ul class="dropdown-menu dropdown-menu-custom dropdown-menu-end">
+                        <li v-if="canEdit(user)">
+                          <button
+                            class="dropdown-item d-flex align-items-center gap-2"
+                            @click="userToEdit = user"
+                          >
+                            <PhPencilSimple :size="16" />
+                            Muuda
+                          </button>
+                        </li>
+                        <li v-if="canActivate(user)">
+                          <button
+                            class="dropdown-item d-flex align-items-center gap-2"
+                            @click="openActivateConfirmation(user)"
+                          >
+                            <PhArrowCounterClockwise :size="16" />
+                            Aktiveeri
+                          </button>
+                        </li>
+                        <li v-if="canEdit(user) && canDelete(user)">
+                          <hr class="dropdown-divider" />
+                        </li>
+                        <li v-if="canDelete(user)">
+                          <button
+                            class="dropdown-item d-flex align-items-center gap-2 text-danger"
+                            @click="openDeleteConfirmation(user)"
+                          >
+                            <PhTrash :size="16" />
+                            Kustuta
+                          </button>
+                        </li>
+                      </ul>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </template>
     </div>
     <AddUserModal
       :is-open="isAddUserModalOpen"
       @event-close="isAddUserModalOpen = false"
       @event-user-added="handleUserAdded"
     />
+    <EditUserModal
+      :user="userToEdit"
+      @event-close="userToEdit = null"
+      @event-user-updated="handleUserUpdated"
+    />
+
+    <BaseModal :is-open="userToDelete !== null" @event-modal-closed="closeDeleteConfirmation">
+      <template #title>Kustuta kasutaja?</template>
+      <template #body>
+        <p class="mb-2">
+          <strong>{{ userToDelete.email }}</strong>
+        </p>
+        <AlertDanger :error-message="deleteErrorMessage" class="mb-3" />
+        <p class="text-secondary mb-0">
+          Kasutaja muutub mitteaktiivseks ega saa enam sisse logida. Tema testitulemused jäävad
+          alles.
+        </p>
+      </template>
+      <template #buttons>
+        <button
+          class="btn btn-light fw-bold rounded-2"
+          :disabled="isDeleting"
+          @click="closeDeleteConfirmation"
+        >
+          Tühista
+        </button>
+        <button
+          class="btn btn-danger fw-bold rounded-2 d-flex align-items-center gap-2"
+          :disabled="isDeleting"
+          @click="deleteUser"
+        >
+          <PhTrash :size="16" />
+          Kustuta
+        </button>
+      </template>
+    </BaseModal>
+
+    <BaseModal :is-open="userToActivate !== null" @event-modal-closed="closeActivateConfirmation">
+      <template #title>Aktiveeri kasutaja?</template>
+      <template #body>
+        <p class="mb-2">
+          <strong>{{ userToActivate.email }}</strong>
+        </p>
+        <AlertDanger :error-message="activateErrorMessage" class="mb-3" />
+        <p class="text-secondary mb-0">
+          Kasutaja saab uuesti sisse logida oma vana parooliga. Roll ja grupid jäävad samaks, mis
+          enne kustutamist.
+        </p>
+      </template>
+      <template #buttons>
+        <button
+          class="btn btn-light fw-bold rounded-2"
+          :disabled="isActivating"
+          @click="closeActivateConfirmation"
+        >
+          Tühista
+        </button>
+        <button
+          class="btn btn-primary fw-bold rounded-2 d-flex align-items-center gap-2"
+          :disabled="isActivating"
+          @click="activateUser"
+        >
+          <PhArrowCounterClockwise :size="16" />
+          Aktiveeri
+        </button>
+      </template>
+    </BaseModal>
+
+    <SuccessToast :success-message="successMessage" @event-close="successMessage = ''" />
   </div>
 </template>
 
 <style scoped>
 .card {
   overflow: hidden;
+}
+
+.search-input {
+  max-width: 28rem;
+}
+
+.status-filter {
+  width: auto;
 }
 
 .table {
@@ -244,20 +462,24 @@ export default {
   font-weight: bold;
 }
 
-.dropdown-menu-custom {
-  --bs-dropdown-min-width: 11rem;
-  --bs-dropdown-bg: var(--bs-gray-100);
-  --bs-dropdown-border-radius: 0.75rem;
-  --bs-dropdown-link-hover-bg: var(--bs-gray-200);
-  --bs-dropdown-link-disabled-color: var(--bs-body-color);
+/* Ääristeta kolme täpiga nupp nagu küsimuste kaardil (QuestionBankCard.vue) */
+.menu-button {
+  padding: 0.125rem 0.25rem;
+  border: 0;
+  border-radius: 0.5rem;
+  color: var(--bs-gray-600);
 }
 
-.btn-delete {
-  --bs-btn-bg: var(--bs-gray-200);
-  --bs-btn-color: var(--bs-red);
-  --bs-btn-hover-bg: var(--bs-red);
-  --bs-btn-hover-color: var(--bs-light);
-  --bs-btn-active-bg: var(--bs-gray-400);
-  font-weight: 600;
+.menu-button:hover,
+.menu-button.show {
+  background-color: var(--bs-gray-200);
+  color: var(--bs-body-color);
+}
+
+.dropdown-menu-custom {
+  --bs-dropdown-min-width: 10rem;
+  --bs-dropdown-bg: var(--bs-gray-100);
+  --bs-dropdown-border-radius: 0.75rem;
+  --bs-dropdown-link-color: var(--bs-emphasis-color);
 }
 </style>
