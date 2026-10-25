@@ -10,7 +10,8 @@
     "lint": "run-s lint:*",
     "lint:oxlint": "oxlint . --fix",
     "lint:eslint": "eslint . --fix --cache",
-    "format": "prettier --write --experimental-cli src/"
+    "format": "prettier --write --experimental-cli src/",
+    "db-schema": "node scripts/generate-db-schema.mjs"
   },
   "dependencies": {
     "@phosphor-icons/vue": "^2.2.1",

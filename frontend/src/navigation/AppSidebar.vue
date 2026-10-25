@@ -13,6 +13,14 @@ import SessionStorageService from '@/services/SessionStorageService.js'
 export default {
   name: 'AppSidebar',
   components: { PhPersonSimple, PhStack, PhFilePlus, PhHouse, PhFlask, PhQuestion, PhUsers },
+  props: {
+    // Ainult mobiilis: kas ülariba alla avanev menüü on lahti
+    isOpen: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  emits: ['event-menu-closed'],
   methods: {
     // Lingi nähtavus tuleb marsruudi meta.roles'ist (src/router/index.js)
     canSee(path) {
@@ -23,9 +31,11 @@ export default {
 </script>
 
 <template>
-  <aside class="sidebar-wrapper">
-    <nav class="sidebar navbar-light d-flex flex-column p-1 pt-3 pb-3">
-      <div class="nav nav-pills flex-column">
+  <!-- Alates 768px tavaline külgmenüü. Kitsamal ekraanil peidus, AppNavbar'i menüünupp avab selle
+       ülariba alla. Lingile klõps sulgeb menüü. -->
+  <aside id="appSidebar" class="sidebar-wrapper" :class="{ 'is-open': isOpen }">
+    <nav class="sidebar navbar-light d-flex flex-column p-1 pt-3 pb-3" aria-label="Menüü">
+      <div class="nav nav-pills flex-column" @click="$emit('event-menu-closed')">
         <p class="sidebar-label"></p>
         <RouterLink
           v-if="canSee('/dashboard')"
@@ -94,6 +104,28 @@ export default {
   flex-shrink: 0;
   /* 2.5rem = main p-3 + container py-4 — menüü ülaserv on lehe pealkirjareaga samal kõrgusel */
   padding: 2.5rem 0 1.5rem 1.5rem;
+  /* Hoiab menüü täpilaine (DotWaveBackground) kohal */
+  position: relative;
+}
+
+/* Mobiilis: menüü on peidus ja avaneb ülariba alla sisu kohale (sisu ei nihku) */
+@media (max-width: 767.98px) {
+  .sidebar-wrapper {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    padding: 1rem;
+  }
+
+  .sidebar-wrapper.is-open {
+    display: block;
+  }
+
+  .sidebar {
+    position: static;
+  }
 }
 .nav-text {
   font-size: 0.9375rem;

@@ -3,10 +3,13 @@ import MainTitle from '@/components/MainTitle.vue'
 import LoadingText from '@/components/LoadingText.vue'
 import BaseModal from '@/components/modal/BaseModal.vue'
 import CompetenceScoreBars from '@/components/CompetenceScoreBars.vue'
+import DatabaseSchema from '@/components/DatabaseSchema.vue'
 import DashboardService from '@/services/DashboardService.js'
+import SessionStorageService from '@/services/SessionStorageService.js'
 import {
   PhArrowRight,
   PhClipboardText,
+  PhDatabase,
   PhFilePlus,
   PhQuestion,
   PhSparkle,
@@ -14,12 +17,22 @@ import {
 
 export default {
   name: 'DashboardView',
-  components: { MainTitle, LoadingText, BaseModal, CompetenceScoreBars, PhArrowRight },
+  components: {
+    MainTitle,
+    LoadingText,
+    BaseModal,
+    CompetenceScoreBars,
+    DatabaseSchema,
+    PhArrowRight,
+    PhDatabase,
+  },
   data() {
     return {
       TOP_COMPETENCE_COUNT: 3,
       isLoading: true,
       isAllScoresModalOpen: false,
+      isDatabaseSchemaModalOpen: false,
+      isAdmin: SessionStorageService.hasRole(['ADMIN']),
       errorMessage: '',
       dashboard: {
         assignedTestCount: 0,
@@ -137,7 +150,7 @@ export default {
       <section class="card app-surface rounded-4 chart-card">
         <div class="card-body p-4 d-flex flex-column">
           <h2 class="h6 fw-bold mb-1">Läbimise määr</h2>
-          <p class="small text-body-secondary mb-4">{{ completedResultCount }} sooritatud testi</p>
+          <p class="small text-body-secondary mb-4">{{ completedResultCount }} läbitud testi</p>
           <div class="d-flex flex-wrap align-items-center justify-content-center gap-5 flex-grow-1">
             <div class="donut position-relative">
               <svg viewBox="0 0 42 42" class="d-block w-100 h-100" aria-hidden="true">
@@ -170,14 +183,14 @@ export default {
               <li class="d-flex align-items-center gap-2">
                 <span class="legend-dot legend-passed rounded-circle"></span>
                 <span>
-                  <span class="fw-bold">{{ dashboard.passedResultCount }}</span> läbitud
+                  <span class="fw-bold">{{ dashboard.passedResultCount }}</span> sooritatud
                   <span class="text-body-secondary">({{ roundPercent(passedPercent) }}%)</span>
                 </span>
               </li>
               <li class="d-flex align-items-center gap-2">
                 <span class="legend-dot legend-failed rounded-circle"></span>
                 <span>
-                  <span class="fw-bold">{{ dashboard.failedResultCount }}</span> läbikukkunud
+                  <span class="fw-bold">{{ dashboard.failedResultCount }}</span> sooritamata
                   <span class="text-body-secondary">
                     ({{ completedResultCount ? 100 - roundPercent(passedPercent) : 0 }}%)
                   </span>
@@ -212,6 +225,26 @@ export default {
         </div>
       </RouterLink>
     </div>
+
+    <button
+      v-if="isAdmin && !isLoading"
+      class="btn schema-button app-surface rounded-3 d-inline-flex align-items-center gap-2 mt-4"
+      @click="isDatabaseSchemaModalOpen = true"
+    >
+      <PhDatabase :size="18" />
+      Andmebaasi skeem
+    </button>
+
+    <BaseModal
+      size="xl"
+      :is-open="isDatabaseSchemaModalOpen"
+      @event-modal-closed="isDatabaseSchemaModalOpen = false"
+    >
+      <template #title>Andmebaasi skeem</template>
+      <template #body>
+        <DatabaseSchema />
+      </template>
+    </BaseModal>
 
     <BaseModal
       size="lg"
@@ -340,5 +373,18 @@ export default {
 
 .stat-card-highlighted {
   border-color: var(--bs-warning-border-subtle);
+}
+
+/* Tagasihoidlik nupp, sama pinnaga nagu töölaua kaardid */
+.schema-button {
+  background-color: var(--bs-body-bg);
+  color: var(--bs-secondary-color);
+  font-weight: 600;
+}
+
+.schema-button:hover {
+  background-color: var(--bs-body-bg);
+  color: var(--bs-primary);
+  box-shadow: var(--app-surface-shadow-hover);
 }
 </style>
