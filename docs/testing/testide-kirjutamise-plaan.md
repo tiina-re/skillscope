@@ -7,7 +7,7 @@ See fail on jätkamiseks Claude Code'i sessioonis (nt IntelliJ-s). Loe see läbi
 1. Õppida backendi teste kirjutama (JUnit 5 + Mockito + AssertJ). Kõik vajalik on juba olemas `spring-boot-starter-test` kaudu, uusi sõltuvusi ei ole vaja.
 2. Katta testidega minu (Tiina) enda kirjutatud kood: testi loomine (`TestService`) ja küsimuste pank (`QuestionService`, hiljem AI küsimuste pank).
 
-**Seis:** sammud 1–6 on tehtud, kokku 80 testi — `QuestionServiceTest` (18), `TestServiceTest` (8), `ResultServiceTest` (12), `TestAttemptServiceTest` (16), `TestControllerTest` (3), `AiQuestionServiceTest` (15) ja `AiQuestionBankServiceTest` (8). Täpne nimekiri, mida testid katavad, on testide nimedes (`meetod_olukord_tulemus`); siin on kirjas ainult see, mida nimedest välja ei loe.
+**Seis:** sammud 1–7 on tehtud, kokku 92 testi — `QuestionServiceTest` (18), `TestServiceTest` (8), `ResultServiceTest` (12), `TestAttemptServiceTest` (16), `TestControllerTest` (3), `AiQuestionServiceTest` (15), `AiQuestionBankServiceTest` (8) ja `UserServiceTest` (12). Täpne nimekiri, mida testid katavad, on testide nimedes (`meetod_olukord_tulemus`); siin on kirjas ainult see, mida nimedest välja ei loe.
 
 ## Kuidas Claude peab aitama (tähtis!)
 
@@ -108,6 +108,18 @@ Märkused:
 - `TRUE_FALSE` peab olema täpselt 2 vastusega. Vastuste tekste ("Tõene" / "Väär") ei kontrollita, ainult arvu.
 - Gemini `ChatClient` on mock `RETURNS_DEEP_STUBS`-iga, et saaks stub'ida terve ahela `prompt().system().user().call().responseEntity(...).getEntity()`. Teenus luuakse `@BeforeEach`-is käsitsi, sest konstruktor kutsub `builder.build()`.
 - Ei ole testitud: eelnevate sõnumite (`previousMessages`) liitmine AI päringusse, vastuste segamine (`Collections.shuffle`), pikkade tekstide lühendamine.
+
+### ✅ Samm 7: kasutajate haldus (`UserService`) — õiguste reeglid (Claude kirjutas, mina vaatan üle)
+
+- `deleteUser`: admin ei saa iseennast kustutada; HALDUR ei saa kustutada; kustutamine muudab staatuse `"I"`-ks
+- `updateUser`: admin ei saa muuta enda rolli; HALDUR ei saa muuta adminit; HALDUR-i puhul jäetakse roll ja võõra kasutaja nimi vahele, aga oma hallatava grupi saab lisada; HALDUR ei saa eemaldada gruppi, mida ta ei halda
+- `addUser`: aktiivse kasutaja e-post → `ForbiddenException`; HALDUR ei saa lisada ADMIN rolliga kasutajat ega lisada kasutajat gruppi, mida ta ei halda; kustutatud kasutaja e-postiga lisamine taastab kasutaja (`restored: true`, vanad grupid asendatakse uutega)
+- `activateUser`: profiilita (registreerimata) kasutaja läheb ootele (`"P"`), mitte aktiivseks
+
+Märkused:
+- Iga test on kontrollitud koodi murdmisega (12 mutatsiooni, kõik läksid punaseks).
+- Reegel „iga kasutaja peab kuuluma vähemalt ühte gruppi“ kehtib ainult DTO tasemel (`@NotEmpty groupIds`), teenuse unit test seda ei näe. Selleks oleks vaja kontrolleri testi nagu sammus 5.
+- Ei ole testitud: `findAllUsers`, HALDUR-i enda nime muutmine, profiiliga kasutaja aktiveerimine (`"A"`), `GroupService.findManagedGroups`.
 
 Frontendi testid (Vitest) on eraldi teema, nendega hiljem.
 
