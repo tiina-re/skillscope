@@ -1,14 +1,24 @@
 <script>
 import AccountIcon from '@/navigation/AccountIcon.vue'
 import ThemeToggle from '@/navigation/ThemeToggle.vue'
+import { PhList } from '@phosphor-icons/vue'
 
 export default {
   name: 'AppNavbar',
-  components: { AccountIcon: AccountIcon, ThemeToggle },
+  components: { AccountIcon: AccountIcon, ThemeToggle, PhList },
   props: {
     showAccountIcon: {
       type: Boolean,
       default: true,
+    },
+    // Mobiilis avab/sulgeb menüü ülariba all. Sisselogimise lehel menüüd pole.
+    showMenuButton: {
+      type: Boolean,
+      default: false,
+    },
+    isMenuOpen: {
+      type: Boolean,
+      default: false,
     },
     // Lehe täpilaine jookseb ka üle kaare. MainLayout annab sama tingimuse, millega näidatakse
     // DotWaveBackground'i, et mõlemad kihid alustaksid animatsiooni samal hetkel.
@@ -17,6 +27,7 @@ export default {
       default: false,
     },
   },
+  emits: ['event-menu-toggled'],
 }
 </script>
 
@@ -25,10 +36,23 @@ export default {
     <span class="nav-arc" aria-hidden="true">
       <span v-if="showDotWave" class="nav-arc-wave app-dot-wave-layer"></span>
     </span>
-    <RouterLink class="navbar-brand brand" to="/">
-      <span class="brand-mark" aria-hidden="true"></span>
-      <span class="brand-skill">Skill</span><span class="brand-scope">Scope</span>
-    </RouterLink>
+    <div class="d-flex align-items-center">
+      <button
+        v-if="showMenuButton"
+        class="btn menu-button d-md-none p-1 me-2"
+        type="button"
+        aria-controls="appSidebar"
+        :aria-expanded="isMenuOpen"
+        :aria-label="isMenuOpen ? 'Sulge menüü' : 'Ava menüü'"
+        @click="$emit('event-menu-toggled')"
+      >
+        <PhList :size="26" />
+      </button>
+      <RouterLink class="navbar-brand brand" to="/">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span class="brand-skill">Skill</span><span class="brand-scope">Scope</span>
+      </RouterLink>
+    </div>
     <div class="d-flex align-items-center gap-2">
       <ThemeToggle :class="{ 'me-3': !showAccountIcon }" />
       <AccountIcon v-if="showAccountIcon" />
@@ -81,6 +105,11 @@ export default {
 .app-nav > .nav-arc {
   position: absolute;
   z-index: 0;
+}
+
+.menu-button {
+  color: var(--app-ink);
+  border: none;
 }
 
 .brand {
