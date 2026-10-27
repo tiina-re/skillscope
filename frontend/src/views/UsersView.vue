@@ -7,6 +7,7 @@ import AddUserModal from '@/components/AddUserModal.vue'
 import EditUserModal from '@/components/EditUserModal.vue'
 import BaseModal from '@/components/modal/BaseModal.vue'
 import SuccessToast from '@/components/SuccessToast.vue'
+import FilterDropdown from '@/components/FilterDropdown.vue'
 import {
   PhArrowCounterClockwise,
   PhDotsThree,
@@ -27,6 +28,7 @@ export default {
     EditUserModal,
     BaseModal,
     SuccessToast,
+    FilterDropdown,
     PhArrowCounterClockwise,
     PhDotsThree,
     PhMagnifyingGlass,
@@ -51,8 +53,12 @@ export default {
       userToDelete: null,
       userToActivate: null,
       searchText: '',
-      // 'all' - kõik, muidu staatuse kood (A, P, I)
-      statusFilter: 'all',
+      // null - kõik, muidu staatuse kood (A, P, I)
+      statusFilter: null,
+      statusOptions: ['A', 'P', 'I'].map((statusCode) => ({
+        value: statusCode,
+        label: Status[statusCode].name,
+      })),
       userStatus: Status,
       users: [
         {
@@ -93,7 +99,7 @@ export default {
 
   methods: {
     isStatusMatching(user) {
-      return this.statusFilter === 'all' || user.status === this.statusFilter
+      return this.statusFilter === null || user.status === this.statusFilter
     },
     getAllUsers() {
       UserService.getAllUsers()
@@ -226,12 +232,12 @@ export default {
               aria-label="Otsi kasutajaid"
             />
           </div>
-          <select v-model="statusFilter" class="form-select status-filter" aria-label="Staatus">
-            <option value="all">Kõik</option>
-            <option v-for="statusCode in ['A', 'P', 'I']" :key="statusCode" :value="statusCode">
-              {{ userStatus[statusCode].name }}
-            </option>
-          </select>
+          <FilterDropdown
+            :options="statusOptions"
+            :selected-value="statusFilter"
+            :all-option="{ value: null, label: 'Kõik staatused' }"
+            @event-option-selected="statusFilter = $event"
+          />
         </div>
         <div class="card app-surface rounded-4">
           <div class="table-responsive">
@@ -420,10 +426,6 @@ export default {
 
 .search-input {
   max-width: 28rem;
-}
-
-.status-filter {
-  width: auto;
 }
 
 .table {

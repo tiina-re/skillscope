@@ -7,10 +7,24 @@ import TestNotFoundCard from '@/components/TestNotFoundCard.vue'
 import AlertDanger from '@/components/AlertDanger.vue'
 import MainTitle from '@/components/MainTitle.vue'
 import NavigationService from '@/services/NavigationService.js'
+import FilterDropdown from '@/components/FilterDropdown.vue'
+
+// Filtri valikud kasutaja testi staatuse järgi (Status.js): O = avatud, C = sooritatud
+const STATUS_OPTIONS = [
+  { value: 'O', label: 'Läbimata' },
+  { value: 'C', label: 'Läbitud' },
+]
 
 export default {
   name: 'MyTestsView',
-  components: { MainTitle, AlertDanger, TestNotFoundCard, LoadingText, PreviewCard },
+  components: {
+    MainTitle,
+    AlertDanger,
+    TestNotFoundCard,
+    LoadingText,
+    PreviewCard,
+    FilterDropdown,
+  },
   beforeMount() {
     this.getUserTests()
   },
@@ -18,6 +32,9 @@ export default {
   data() {
     return {
       errorMessage: '',
+      STATUS_OPTIONS,
+      // Vaikimisi näidatakse ainult veel tegemata teste
+      selectedStatus: 'O',
       userTestStatus: Status,
       isLoading: true,
       userTestSummaries: [
@@ -30,6 +47,15 @@ export default {
         },
       ],
     }
+  },
+
+  computed: {
+    filteredUserTestSummaries() {
+      if (this.selectedStatus === null) return this.userTestSummaries
+      return this.userTestSummaries.filter(
+        (userTestSummary) => userTestSummary.userTestStatus === this.selectedStatus,
+      )
+    },
   },
 
   methods: {
@@ -64,10 +90,20 @@ export default {
       <TestNotFoundCard :message="'Sulle pole ühtki testi määratud'" />
     </div>
     <div v-else>
-      <MainTitle title="Minu testid" />
+      <MainTitle title="Minu testid">
+        <FilterDropdown
+          :options="STATUS_OPTIONS"
+          :selected-value="selectedStatus"
+          :all-option="{ value: null, label: 'Kõik testid' }"
+          @event-option-selected="selectedStatus = $event"
+        />
+      </MainTitle>
+      <p v-if="filteredUserTestSummaries.length === 0" class="text-body-secondary">
+        Siin pole ühtki testi
+      </p>
       <div class="preview-test-card-grid">
         <PreviewCard
-          v-for="userTestSummary in userTestSummaries"
+          v-for="userTestSummary in filteredUserTestSummaries"
           :key="userTestSummary.userTestId"
           :status-badge="userTestStatus[userTestSummary.userTestStatus]"
         >

@@ -2,8 +2,8 @@ import axios from 'axios'
 
 export default {
 
-  getAllTests() {
-    return axios.get('/api/tests')
+  getAllTests(competenceId) {
+    return axios.get('/api/tests', { params: { competenceId } })
   },
   getTestDetail(testId) {
     return axios.get(`/api/tests/${testId}`)
